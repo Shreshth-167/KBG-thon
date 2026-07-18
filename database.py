@@ -171,25 +171,28 @@ def log_viral_intercept(session_id: str, source: str, raw_trigger_text: str) -> 
 # CHAT LOGGING
 # ---------------------------------------------------------------------------
 
-def log_chat_turn(session_id: str, user_message: str, assistant_response: str, was_blocked_by_guardrail: bool, matched_snippet_ids: Optional[list[str]] = None) -> bool:
+def log_chat_turn(session_id: str, user_message: str, assistant_response: str,
+                  was_blocked_by_guardrail: bool,
+                  matched_snippet_ids: Optional[list[str]] = None) -> bool:
     try:
         client = _get_client()
         if client is None:
             raise RuntimeError("Supabase client is offline.")
+
         client.table("chat_logs").insert({
             "session_id": session_id,
             "user_message": user_message[:2000],
-            "assistant_response": assistant_response[:4000],
+            "ai_response": assistant_response[:4000],   # <-- Changed here
             "was_blocked_by_guardrail": was_blocked_by_guardrail,
-            "matched_snippet_ids": matched_snippet_ids or [],
             "created_at": datetime.now(timezone.utc).isoformat(),
         }).execute()
+
         return True
+
     except Exception as exc:
         _log_db_error("log_chat_turn", exc)
         print(f"📝 [LOCAL LOG] Chat Log Intercepted -> Guardrail Triggered: {was_blocked_by_guardrail}")
         return False
-
 # ---------------------------------------------------------------------------
 # REFERENCE SNIPPETS  (Demo Presentation Optimized)
 # ---------------------------------------------------------------------------
@@ -245,21 +248,12 @@ def search_snippets_by_tags(query_text: str, snippets: list[dict], top_k: int = 
     return [s for _, s in scored[:top_k]]
 
 def get_myths_and_facts():
-    """Fetches educational myths/facts from Supabase, with a high-fidelity local fallback."""
-    try:
-        supabase = _get_client()
-        if supabase:
-            response = supabase.table("myths_facts").select("*").execute()
-            if response.data and len(response.data) > 0:
-                return response.data
-    except Exception as e:
-        print(f"Database read error context managed: {e}")
-    
-    # Using your high-fidelity lowercase array directly as the backup
+    """Returns built-in educational myths and facts."""
+
     return [
         {
             "myth": "Antibiotics cure colds and flu.",
-            "fact": "Colds and flu are caused by viruses. Antibiotics only work on bacteria — they have zero effect on viral infections and can cause harm.",
+            "fact": "Colds and flu are caused by viruses. Antibiotics only work on bacteria—they have zero effect on viral infections and can cause harm.",
             "source_org": "WHO",
             "source_url": "https://www.who.int/news-room/fact-sheets/detail/antimicrobial-resistance",
         },
@@ -271,25 +265,25 @@ def get_myths_and_facts():
         },
         {
             "myth": "Sharing antibiotics with a sick family member is helpful.",
-            "fact": "A prescription is for a specific person, infection, and dose. Sharing means wrong drug, wrong dose, and an incomplete course — ideal conditions for creating resistant bacteria.",
+            "fact": "A prescription is for a specific person, infection, and dose. Sharing antibiotics can lead to the wrong drug, wrong dose, and incomplete treatment, increasing antimicrobial resistance.",
             "source_org": "WHO",
             "source_url": "https://www.who.int/news-room/fact-sheets/detail/antimicrobial-resistance",
         },
         {
             "myth": "Stronger antibiotics are always better for serious infections.",
-            "fact": "Broad-spectrum and 'stronger' antibiotics accelerate resistance and kill beneficial gut bacteria. Targeted, appropriate-spectrum antibiotics chosen by a doctor are always preferable.",
+            "fact": "Broad-spectrum or stronger antibiotics should only be used when necessary. Using them unnecessarily accelerates antimicrobial resistance and can harm beneficial bacteria.",
             "source_org": "CDC",
             "source_url": "https://www.cdc.gov/antibiotic-use/index.html",
         },
         {
             "myth": "Keeping antibiotics at home is safe and convenient.",
-            "fact": "Stockpiling creates easy access for self-medication. Stored antibiotics are often past expiry, incorrectly stored, and used without a diagnosis — all major resistance risks.",
+            "fact": "Keeping leftover antibiotics encourages self-medication. Antibiotics should only be taken under medical advice and for the prescribed duration.",
             "source_org": "ICMR",
             "source_url": "https://main.icmr.gov.in/content/antimicrobial-resistance",
         },
         {
             "myth": "Antibiotic resistance only affects people who misuse antibiotics.",
-            "fact": "Resistance spreads through communities, hospitals, food, and water. Even if you use antibiotics correctly, resistant bacteria created elsewhere can infect you.",
+            "fact": "Resistant bacteria can spread between people, animals, food, and the environment. Everyone is affected by antimicrobial resistance.",
             "source_org": "WHO",
             "source_url": "https://www.who.int/news-room/fact-sheets/detail/antimicrobial-resistance",
         }

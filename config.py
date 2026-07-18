@@ -63,7 +63,7 @@ SUPABASE_ANON_KEY: str = _require("SUPABASE_ANON_KEY")
 OPENAI_BASE_URL: str = "https://api.groq.com/openai/v1"
 """Redirects standard OpenAI client calls to Groq's free cloud infrastructure endpoint."""
 
-OPENAI_MODEL: str = "llama-3.3-70b-specdec"
+OPENAI_MODEL: str = "llama-3.3-70b-versatile"
 """Free tier model identifier. Blazing fast alternative that costs zero credits."""
 
 OPENAI_TEMPERATURE: float = 0.0

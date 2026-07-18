@@ -31,7 +31,7 @@ import database as db
 
 st.set_page_config(
     page_title=f"{config.APP_NAME}",
-    page_icon="🛡️",
+    page_icon="⚕️",
     layout="wide",
     initial_sidebar_state="collapsed",
     menu_items={
@@ -54,128 +54,231 @@ st.markdown(
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
-    /* ── Global reset ── */
-    html, body, [class*="css"] {
+    /* ── Force readable dark text everywhere by default ──
+         Streamlit's own theme sometimes sets light/white text on headings and
+         markdown content which then blends into this app's light background.
+         This rule guarantees legibility; anything intentionally colored
+         (accent headings, badges, links) uses !important inline/class rules
+         with higher priority than this fallback. */
+    [data-testid="stMarkdownContainer"] h1,
+    [data-testid="stMarkdownContainer"] h2,
+    [data-testid="stMarkdownContainer"] h3,
+    [data-testid="stMarkdownContainer"] h4,
+    [data-testid="stMarkdownContainer"] h5,
+    [data-testid="stMarkdownContainer"] h6,
+    [data-testid="stMarkdownContainer"] p,
+    [data-testid="stMarkdownContainer"] li,
+    [data-testid="stMarkdownContainer"] span,
+    [data-testid="stMarkdownContainer"] strong,
+    [data-testid="stMarkdownContainer"] em {
+        color: #1F2937 !important;
+    }
+    [data-testid="stExpander"] summary,
+    [data-testid="stExpander"] summary span,
+    [data-testid="stExpander"] summary p {
+        color: #1F2937 !important;
+    }
+    [data-testid="stCaptionContainer"] {
+        color: #4B5563 !important;
+    }
+
+    /* ── Global reset — light WHO-style gradient background ── */
+    html,
+    body,
+    .stApp,
+    [data-testid="stAppViewContainer"],
+    [data-testid="stHeader"] {
         font-family: 'Inter', sans-serif !important;
-        background-color: #0F1117 !important;
-        color: #E8EAF0 !important;
+        background: linear-gradient(160deg, #EAF4FB 0%, #F5FAFD 45%, #E4F1F8 100%) !important;
+        color: #1F2937 !important;
+    }
+    .main,
+    .block-container {
+        background: transparent !important;
     }
 
     /* ── Hide default Streamlit chrome ── */
     #MainMenu, footer, header { visibility: hidden; }
 
-    /* ── App header bar ── */
-    .app-header {
-        background: linear-gradient(135deg, #1A1D2E 0%, #0F1117 100%);
-        border-bottom: 2px solid #00D4AA;
-        padding: 1.2rem 2rem;
-        margin-bottom: 1.5rem;
-        border-radius: 0 0 12px 12px;
+    /* ── App Header (WHO-inspired blue) ── */
+    .app-header{
+        width:100%;
+        min-height:140px;
+        background: linear-gradient(135deg, #002F6C 0%, #0093D5 100%);
+        border-radius:18px;
+        padding:2rem;
+        box-shadow:
+            0 10px 25px rgba(0,63,114,.28),
+            0 2px 6px rgba(0,0,0,.08),
+            inset 0 1px 0 rgba(255,255,255,.15);
+        position:relative;
+        overflow:hidden;
+    }
+    .app-header::before{
+        content:"";
+        position:absolute;
+        width:420px;
+        height:420px;
+        background:radial-gradient(rgba(255,255,255,.10), transparent 70%);
+        top:-200px;
+        right:-100px;
     }
     .app-header h1 {
-        font-size: 1.6rem;
+        font-size: 1.7rem;
         font-weight: 800;
-        color: #00D4AA;
+        color: #FFFFFF;
         margin: 0;
-        letter-spacing: -0.5px;
+        letter-spacing: -0.3px;
     }
     .app-header p {
-        color: #8B90A7;
-        margin: 0.2rem 0 0 0;
+        color: rgba(255,255,255,0.85);
+        margin: 0.3rem 0 0 0;
         font-size: 0.85rem;
     }
 
-    /* ── Card surfaces ── */
-    .card {
-        background: #1A1D2E;
-        border: 1px solid #2A2D3E;
+    /* ── Quiz question boxes ── */
+    div[class*="st-key-quizbox_"] {
+        background: linear-gradient(160deg, #FFFFFF 0%, #F3F8FC 100%);
+        border: 1px solid rgba(0,63,114,0.08);
+        border-left: 4px solid #0093D5;
         border-radius: 12px;
+        padding: 1rem 1.2rem 0.6rem 1.2rem;
+        margin-bottom: 1rem;
+        box-shadow:
+            0 8px 18px rgba(15,52,96,.09),
+            0 2px 5px rgba(15,52,96,.05),
+            inset 0 1px 0 rgba(255,255,255,.7);
+        transition: transform .15s ease, box-shadow .15s ease;
+    }
+    div[class*="st-key-quizbox_"]:hover {
+        transform: translateY(-1px);
+        box-shadow:
+            0 12px 24px rgba(15,52,96,.13),
+            0 3px 7px rgba(15,52,96,.07),
+            inset 0 1px 0 rgba(255,255,255,.7);
+    }
+
+    /* ── Card surfaces — soft 3D / raised look ── */
+    .card {
+        background: linear-gradient(160deg, #FFFFFF 0%, #F3F8FC 100%);
+        border: 1px solid rgba(0,63,114,0.08);
+        border-radius: 14px;
         padding: 1.5rem;
         margin-bottom: 1rem;
+        color: #1F2937;
+        box-shadow:
+            0 10px 22px rgba(15,52,96,.10),
+            0 2px 6px rgba(15,52,96,.06),
+            inset 0 1px 0 rgba(255,255,255,.7);
+        transition: transform .18s ease, box-shadow .18s ease;
+    }
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow:
+            0 14px 28px rgba(15,52,96,.14),
+            0 3px 8px rgba(15,52,96,.08),
+            inset 0 1px 0 rgba(255,255,255,.7);
     }
     .card-accent {
-        border-left: 4px solid #00D4AA;
+        border-left: 4px solid #0093D5;
+    }
+    .card, .card h1, .card h2, .card h4, .card p, .card span, .card strong {
+        color: #1F2937 !important;
     }
 
     /* ── Safety gateway ── */
     .gateway-container {
         max-width: 720px;
         margin: 3rem auto;
-        background: #1A1D2E;
-        border: 2px solid #FF4B4B;
+        background: linear-gradient(160deg, #FFFFFF 0%, #F3F8FC 100%);
+        border: 1px solid rgba(0,63,114,0.10);
+        border-top: 5px solid #002F6C;
         border-radius: 16px;
         padding: 2.5rem;
-        box-shadow: 0 0 40px rgba(255, 75, 75, 0.15);
+        box-shadow:
+            0 18px 40px rgba(15,52,96,.16),
+            0 4px 10px rgba(15,52,96,.08);
     }
     .gateway-title {
-        font-size: 1.8rem;
+        font-size: 1.7rem;
         font-weight: 800;
-        color: #FF4B4B;
+        color: #002F6C;
         margin-bottom: 0.5rem;
     }
     .gateway-subtitle {
-        color: #8B90A7;
+        color: #4B5563;
         font-size: 0.9rem;
         margin-bottom: 1.5rem;
     }
-    .emergency-box {
-        background: rgba(255,75,75,0.1);
-        border: 1px solid #FF4B4B;
-        border-radius: 8px;
-        padding: 0.8rem 1rem;
-        margin: 1rem 0;
-        font-size: 0.85rem;
-        color: #FF8080;
+    .emergency-box{
+        background: linear-gradient(160deg, #FFF7ED 0%, #FFEDD9 100%);
+        border-left:8px solid #C2410C;
+        border-radius:16px;
+        padding:22px;
+        margin:1.2rem 0;
+        box-shadow: 0 10px 22px rgba(154,52,18,.14), inset 0 1px 0 rgba(255,255,255,.5);
+        color:#7C2D12;
     }
-    .is-box {
-        background: rgba(0,212,170,0.08);
-        border: 1px solid #00D4AA;
-        border-radius: 8px;
-        padding: 0.8rem 1rem;
-        margin: 0.5rem 0;
-        color: #A0F0E0;
-        font-size: 0.85rem;
+    .is-box{
+        background: linear-gradient(160deg, #F0FFFB 0%, #E1FBF3 100%);
+        border-left:6px solid #00A884;
+        border-radius:16px;
+        padding:22px;
+        box-shadow: 0 10px 22px rgba(0,120,90,.10), inset 0 1px 0 rgba(255,255,255,.6);
+        color:#1F2937;
+        transition:.2s;
     }
-    .isnot-box {
-        background: rgba(255,75,75,0.06);
-        border: 1px solid #7A1010;
-        border-radius: 8px;
-        padding: 0.8rem 1rem;
-        margin: 0.5rem 0;
-        color: #FF8080;
-        font-size: 0.85rem;
+    .is-box:hover{
+        transform:translateY(-3px);
+        box-shadow:0 14px 28px rgba(0,120,90,.18);
+    }
+    .isnot-box{
+        background: linear-gradient(160deg, #FFF5F5 0%, #FDE8E8 100%);
+        border-left:6px solid #DC2626;
+        border-radius:16px;
+        padding:22px;
+        box-shadow: 0 10px 22px rgba(153,27,27,.10), inset 0 1px 0 rgba(255,255,255,.6);
+        color:#1F2937;
+        transition:.2s;
+    }
+    .isnot-box:hover{
+        transform:translateY(-3px);
+        box-shadow:0 14px 28px rgba(153,27,27,.18);
     }
 
     /* ── Risk band badges ── */
     .badge-low {
         display: inline-block;
-        background: rgba(0,212,170,0.15);
-        color: #00D4AA;
-        border: 1px solid #00D4AA;
+        background: #DFF7EF;
+        color: #0F7A5D;
+        border: 1px solid #0F7A5D;
         border-radius: 20px;
         padding: 0.3rem 1rem;
         font-weight: 700;
         font-size: 1rem;
+        box-shadow: 0 3px 8px rgba(15,122,93,.15);
     }
     .badge-medium {
         display: inline-block;
-        background: rgba(255,215,0,0.15);
-        color: #FFD700;
-        border: 1px solid #FFD700;
+        background: #FEF3D6;
+        color: #92600E;
+        border: 1px solid #92600E;
         border-radius: 20px;
         padding: 0.3rem 1rem;
         font-weight: 700;
         font-size: 1rem;
+        box-shadow: 0 3px 8px rgba(146,96,14,.15);
     }
     .badge-high {
         display: inline-block;
-        background: rgba(255,75,75,0.15);
-        color: #FF4B4B;
-        border: 1px solid #FF4B4B;
+        background: #FBE1E1;
+        color: #B91C1C;
+        border: 1px solid #B91C1C;
         border-radius: 20px;
         padding: 0.3rem 1rem;
         font-weight: 700;
         font-size: 1rem;
+        box-shadow: 0 3px 8px rgba(185,28,28,.15);
     }
 
     /* ── Score ring (text-only version for Streamlit) ── */
@@ -184,45 +287,77 @@ st.markdown(
         font-weight: 800;
         text-align: center;
         padding: 1rem;
-        color: #00D4AA;
+        color: #0093D5;
+    }
+
+    /* ── Chat input textarea (the "Ask a question" box) ──
+         Streamlit's theme can leave this using the same color for the
+         textarea background and its text — force both explicitly. */
+    .stTextArea textarea {
+        background-color: #FFFFFF !important;
+        color: #1F2937 !important;
+        border: 1px solid rgba(0,63,114,0.20) !important;
+        border-radius: 10px !important;
+        box-shadow: inset 0 2px 4px rgba(0,63,114,.06);
+    }
+    .stTextArea textarea::placeholder {
+        color: #9CA3AF !important;
+    }
+    .stTextArea label,
+    .stTextArea label p {
+        color: #1F2937 !important;
     }
 
     /* ── Chat messages ── */
+    .chat-user,
+    .chat-user strong,
+    .chat-user span {
+        color: #002F6C !important;
+    }
     .chat-user {
-        background: rgba(0,212,170,0.1);
-        border: 1px solid rgba(0,212,170,0.3);
+        background: linear-gradient(160deg, #E7F4FC 0%, #D9EDF9 100%);
+        border: 1px solid rgba(0,147,213,0.30);
         border-radius: 12px 12px 4px 12px;
         padding: 0.8rem 1rem;
         margin: 0.5rem 0;
         font-size: 0.9rem;
+        box-shadow: 0 4px 10px rgba(0,63,114,.08);
+    }
+    .chat-bot,
+    .chat-bot strong,
+    .chat-bot span {
+        color: #1F2937 !important;
     }
     .chat-bot {
-        background: #1A1D2E;
-        border: 1px solid #2A2D3E;
+        background: linear-gradient(160deg, #FFFFFF 0%, #F3F8FC 100%);
+        border: 1px solid rgba(0,63,114,0.10);
         border-radius: 12px 12px 12px 4px;
         padding: 0.8rem 1rem;
         margin: 0.5rem 0;
         font-size: 0.9rem;
+        box-shadow: 0 4px 10px rgba(0,63,114,.08);
     }
     .chat-blocked {
-        background: rgba(255,75,75,0.08);
-        border: 1px solid rgba(255,75,75,0.4);
+        background: #FDECEC;
+        border: 1px solid rgba(185,28,28,0.35);
         border-radius: 8px;
         padding: 0.6rem 1rem;
         font-size: 0.8rem;
-        color: #FF8080;
+        color: #B91C1C;
         margin-top: 0.3rem;
     }
 
     /* ── Source sidebar snippets ── */
     .snippet-card {
-        background: #14172A;
-        border: 1px solid #2A2D3E;
-        border-left: 3px solid #00D4AA;
+        background: linear-gradient(160deg, #FFFFFF 0%, #F1F8FC 100%);
+        border: 1px solid rgba(0,63,114,0.10);
+        border-left: 3px solid #0093D5;
         border-radius: 8px;
         padding: 0.8rem;
         margin-bottom: 0.6rem;
         font-size: 0.8rem;
+        color: #374151;
+        box-shadow: 0 4px 10px rgba(0,63,114,.06);
     }
     .snippet-org-badge {
         display: inline-block;
@@ -232,20 +367,20 @@ st.markdown(
         border-radius: 10px;
         margin-bottom: 0.3rem;
     }
-    .badge-who { background: rgba(0,123,255,0.2); color: #60A5FA; border: 1px solid #1D4ED8; }
-    .badge-cdc { background: rgba(34,197,94,0.2); color: #4ADE80; border: 1px solid #15803D; }
-    .badge-icmr { background: rgba(249,115,22,0.2); color: #FB923C; border: 1px solid #C2410C; }
+    .badge-who { background: #DCEBFB; color: #1D4ED8; border: 1px solid #1D4ED8; }
+    .badge-cdc { background: #DCF6E6; color: #15803D; border: 1px solid #15803D; }
+    .badge-icmr { background: #FDE7D6; color: #C2410C; border: 1px solid #C2410C; }
 
     /* ── Myth/Fact cards ── */
     .myth-label {
-        color: #FF4B4B;
+        color: #B91C1C;
         font-weight: 700;
         font-size: 0.75rem;
         text-transform: uppercase;
         letter-spacing: 1px;
     }
     .fact-label {
-        color: #00D4AA;
+        color: #0F7A5D;
         font-weight: 700;
         font-size: 0.75rem;
         text-transform: uppercase;
@@ -254,14 +389,15 @@ st.markdown(
 
     /* ── Viral redirect banner ── */
     .viral-banner {
-        background: linear-gradient(135deg, rgba(255,215,0,0.08), rgba(255,165,0,0.05));
-        border: 2px solid #FFD700;
+        background: linear-gradient(135deg, #FEF3D6, #FDE9BE);
+        border: 2px solid #D97706;
         border-radius: 12px;
         padding: 1.5rem;
         margin: 1rem 0;
+        box-shadow: 0 8px 18px rgba(146,96,14,.12);
     }
     .viral-banner-title {
-        color: #FFD700;
+        color: #92600E;
         font-size: 1.2rem;
         font-weight: 700;
         margin-bottom: 0.5rem;
@@ -269,63 +405,93 @@ st.markdown(
 
     /* ── Tabs styling ── */
     .stTabs [data-baseweb="tab-list"] {
-        background-color: #1A1D2E;
+        background-color: #FFFFFF;
         border-radius: 10px;
         padding: 4px;
         gap: 4px;
+        box-shadow: 0 4px 12px rgba(0,63,114,.08);
     }
     .stTabs [data-baseweb="tab"] {
         border-radius: 8px;
-        color: #8B90A7;
         font-weight: 500;
     }
+    .stTabs [data-baseweb="tab"],
+    .stTabs [data-baseweb="tab"] p,
+    .stTabs [data-baseweb="tab"] span,
+    .stTabs [data-baseweb="tab"] div {
+        color: #374151 !important;
+    }
+    .stTabs [aria-selected="true"],
+    .stTabs [aria-selected="true"] p,
+    .stTabs [aria-selected="true"] span,
+    .stTabs [aria-selected="true"] div {
+        color: #FFFFFF !important;
+    }
     .stTabs [aria-selected="true"] {
-        background-color: #00D4AA !important;
-        color: #0F1117 !important;
+        background-color: #0093D5 !important;
         font-weight: 700 !important;
     }
+    .stTabs [data-baseweb="tab-highlight"] {
+        background-color: #0093D5 !important;
+    }
+    .stTabs [data-baseweb="tab-border"] {
+        background-color: rgba(0,63,114,0.12) !important;
+    }
 
-    /* ── Buttons ── */
-    .stButton > button {
-        background: linear-gradient(135deg, #00D4AA, #00A882);
-        color: #0F1117;
+    /* ── Buttons (default: WHO blue, raised 3D) ── */
+    .stButton > button,
+    .stFormSubmitButton > button {
+        background: linear-gradient(135deg, #0093D5, #0072A8);
+        color: #FFFFFF;
         font-weight: 700;
         border: none;
         border-radius: 8px;
         padding: 0.6rem 1.5rem;
         font-size: 0.95rem;
+        box-shadow: 0 6px 14px rgba(0,63,114,.22), inset 0 1px 0 rgba(255,255,255,.25);
         transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
-    .stButton > button:hover {
+    .stButton > button:hover,
+    .stFormSubmitButton > button:hover {
         transform: translateY(-1px);
-        box-shadow: 0 4px 15px rgba(0,212,170,0.3);
+        box-shadow: 0 10px 20px rgba(0,63,114,.28);
+    }
+
+    /* ── Send button in the AI chat: green ── */
+    .st-key-send_button_container button {
+        background: linear-gradient(135deg, #22A559, #178A45) !important;
+        box-shadow: 0 6px 14px rgba(21,113,63,.28), inset 0 1px 0 rgba(255,255,255,.25) !important;
+    }
+    .st-key-send_button_container button:hover {
+        box-shadow: 0 10px 20px rgba(21,113,63,.32) !important;
     }
 
     /* ── Checkbox ── */
     .stCheckbox label {
-        color: #E8EAF0 !important;
+        color: #1F2937 !important;
         font-size: 0.95rem !important;
         font-weight: 500 !important;
     }
 
     /* ── Expander (myth/fact) ── */
     .streamlit-expanderHeader {
-        background: #1A1D2E !important;
+        background: #FFFFFF !important;
         border-radius: 8px !important;
         font-weight: 600 !important;
-        color: #E8EAF0 !important;
+        color: #1F2937 !important;
+        box-shadow: 0 4px 10px rgba(0,63,114,.06);
     }
 
     /* ── Divider ── */
-    hr { border-color: #2A2D3E !important; }
+    hr { border-color: rgba(0,63,114,0.15) !important; }
 
     /* ── Footer ── */
     .app-footer {
         text-align: center;
-        color: #4A4D5E;
+        color: #6B7280;
         font-size: 0.75rem;
         padding: 2rem 0 1rem 0;
-        border-top: 1px solid #1A1D2E;
+        border-top: 1px solid rgba(0,63,114,0.12);
         margin-top: 3rem;
     }
     </style>
@@ -462,31 +628,31 @@ RISK_BANDS: dict[str, dict] = {
     "Low": {
         "range": "0–2",
         "color": "low",
-        "emoji": "🟢",
+        "emoji": "",
         "headline": "Your antibiotic habits show low risk patterns.",
         "message": (
             "Great news — your self-reported antibiotic habits are relatively safe. "
             "Keep it up by always consulting a doctor before starting any antibiotic course, "
             "completing every prescribed course fully, and never sharing or stockpiling antibiotics."
         ),
-        "tip": "💡 **Tip:** Even one instance of antibiotic misuse contributes to resistance. Share what you've learned today with someone you know.",
+        "tip": "**Tip:** Even one instance of antibiotic misuse contributes to resistance. Share what you've learned today with someone you know.",
     },
     "Medium": {
         "range": "3–6",
         "color": "medium",
-        "emoji": "🟡",
+        "emoji": "",
         "headline": "Some of your antibiotic habits carry real resistance risk.",
         "message": (
             "The specific answers below contributed to your score. "
             "Understanding *why* these behaviors matter is the first step to changing them. "
             "Consider speaking with a pharmacist or doctor about safer antibiotic practices."
         ),
-        "tip": "💡 **Next step:** Talk to a pharmacist — they can advise on safe antibiotic use without a full appointment.",
+        "tip": "**Next step:** Talk to a pharmacist — they can advise on safe antibiotic use without a full appointment.",
     },
     "High": {
         "range": "7+",
         "color": "high",
-        "emoji": "🔴",
+        "emoji": "",
         "headline": "Your self-reported habits carry significant AMR risk.",
         "message": (
             "Multiple high-risk behaviors are affecting your AMR risk profile. "
@@ -494,7 +660,7 @@ RISK_BANDS: dict[str, dict] = {
             "of antibiotic resistance. We strongly encourage you to speak with a doctor or "
             "pharmacist to review your antibiotic use habits."
         ),
-        "tip": "⚠️ **Action:** Please consult a qualified doctor or pharmacist for guidance on safe antibiotic use.",
+        "tip": "**Action:** Please consult a qualified doctor or pharmacist for guidance on safe antibiotic use.",
     },
 }
 
@@ -525,7 +691,7 @@ Your tone is: clear, factual, non-judgmental, accessible to a general (non-medic
 # ---------------------------------------------------------------------------
 
 HOME_CARE_GUIDE = {
-    "title": "🦠 Antibiotics Won't Help Here — Here's What Actually Does",
+    "title": "Antibiotics Won't Help Here — Here's What Actually Does",
     "why_section": {
         "heading": "Why Antibiotics Don't Work on Viruses",
         "content": (
@@ -540,18 +706,18 @@ HOME_CARE_GUIDE = {
         ),
     },
     "care_section": {
-        "heading": "✅ Safe Home Care & Recovery Guide",
+        "heading": "Safe Home Care & Recovery Guide",
         "items": [
-            ("😴 Rest", "Your immune system does its best work when you're resting. Prioritise sleep and reduce physical activity until symptoms improve."),
-            ("💧 Stay Hydrated", "Drink plenty of fluids — water, clear broths, herbal teas. Hydration helps your body fight infection and prevents dehydration from fever."),
-            ("🌡️ Manage Fever & Pain", "Over-the-counter pain relievers and fever reducers (described generically) can help manage discomfort. Always follow package instructions. Do not give aspirin to children."),
-            ("🌿 Soothe a Sore Throat", "Warm salt-water gargles, throat lozenges (for those over 4 years), and honey (for those over 1 year) can help. *(Source: CDC)*"),
-            ("💨 Ease Congestion", "Use a humidifier, take a warm shower, or use saline nasal drops to relieve blocked or runny nose."),
-            ("🚫 Skip the Antibiotics", "Do not request or self-medicate with antibiotics for viral symptoms — they will not help and carry real risks."),
+            ("Rest", "Your immune system does its best work when you're resting. Prioritise sleep and reduce physical activity until symptoms improve."),
+            ("Stay Hydrated", "Drink plenty of fluids — water, clear broths, herbal teas. Hydration helps your body fight infection and prevents dehydration from fever."),
+            ("Manage Fever & Pain", "Over-the-counter pain relievers and fever reducers (described generically) can help manage discomfort. Always follow package instructions. Do not give aspirin to children."),
+            ("Soothe a Sore Throat", "Warm salt-water gargles, throat lozenges (for those over 4 years), and honey (for those over 1 year) can help. *(Source: CDC)*"),
+            ("Ease Congestion", "Use a humidifier, take a warm shower, or use saline nasal drops to relieve blocked or runny nose."),
+            ("Skip the Antibiotics", "Do not request or self-medicate with antibiotics for viral symptoms — they will not help and carry real risks."),
         ],
     },
     "red_flags": {
-        "heading": "🚨 When to Seek In-Person Medical Care",
+        "heading": "When to Seek In-Person Medical Care",
         "intro": "See a doctor or healthcare professional if you experience any of the following *(Source: CDC)*:",
         "flags": [
             "Difficulty breathing or fast/laboured breathing",
@@ -563,7 +729,7 @@ HOME_CARE_GUIDE = {
             "Severe headache, stiff neck, or rash alongside fever",
         ],
     },
-    "disclaimer": "⚠️ *This is general education, not a treatment plan. See a doctor if your symptoms worsen, persist, or concern you.*",
+    "disclaimer": "*This is general education, not a treatment plan. See a doctor if your symptoms worsen, persist, or concern you.*",
 }
 
 # ---------------------------------------------------------------------------
@@ -582,11 +748,14 @@ def _init_session_state() -> None:
         st.session_state.chat_history = []
         st.session_state.quiz_submitted = False
         st.session_state.gate_logged = False
+
+        # NEW
+        st.session_state.show_viral_guide = False
+
         st.session_state.initialised = True
+
         # Create anonymous DB session row (non-blocking)
         db.create_session(session_id)
-
-
 # ---------------------------------------------------------------------------
 # FEATURE A — INTERLOCKING SAFETY GATEWAY
 # ---------------------------------------------------------------------------
@@ -600,7 +769,7 @@ def render_safety_gateway() -> None:
     st.markdown(
         """
         <div class="gateway-container">
-            <div class="gateway-title">🛡️ Important — Read Before Continuing</div>
+            <div class="gateway-title">Important — Read Before Continuing</div>
             <div class="gateway-subtitle">AMR Awareness & Risk Checker · Educational Tool Only</div>
         """,
         unsafe_allow_html=True,
@@ -611,7 +780,9 @@ def render_safety_gateway() -> None:
         st.markdown(
             """
             <div class="is-box">
-            <strong>✅ This tool IS:</strong><br>
+            <strong><h3 style="margin-bottom:15px;">
+             This Tool CAN Help You
+            </h3></strong><br>
             • An awareness and education resource<br>
             • A self-reflection quiz about antibiotic habits<br>
             • A guide to AMR and responsible antibiotic use<br>
@@ -624,7 +795,9 @@ def render_safety_gateway() -> None:
         st.markdown(
             """
             <div class="isnot-box">
-            <strong>❌ This tool is NOT:</strong><br>
+            <strong><h3 style="margin-bottom:15px;">
+             This Tool Cannot
+            </h3></strong><br>
             • A medical diagnostic tool<br>
             • A prescription or treatment service<br>
             • A substitute for a doctor or pharmacist<br>
@@ -635,15 +808,30 @@ def render_safety_gateway() -> None:
         )
 
     st.markdown(
-        """
-        <div class="emergency-box">
-        🚨 <strong>Medical Emergency?</strong> If you are experiencing a medical emergency —
-        chest pain, difficulty breathing, or any life-threatening symptom —
-        <strong>contact your local emergency services immediately (e.g., 112 / 911 / 108).</strong>
-        Do not use this tool in an emergency.
-        </div>
-        """,
-        unsafe_allow_html=True,
+    """
+    <div class="emergency-box">
+        <h3 style="margin-top:0;">Medical Emergency</h3>
+
+        <p style="margin-bottom:12px;">
+        If you have any <strong>life-threatening symptoms</strong>,
+        do not rely on this tool.
+        </p>
+
+        <ul style="margin-top:0;">
+            <li>Chest pain</li>
+            <li>Difficulty breathing</li>
+            <li>Severe bleeding</li>
+            <li>Loss of consciousness</li>
+            <li>Seizures</li>
+        </ul>
+
+        <strong>
+        Call your local emergency services immediately
+        (112 / 108 / 911).
+        </strong>
+    </div>
+    """,
+    unsafe_allow_html=True,
     )
 
     st.markdown("---")
@@ -718,7 +906,7 @@ def render_viral_redirect(source: str = "quiz", trigger_text: str = "") -> None:
     st.markdown(f"### {rf['heading']}")
     st.markdown(rf["intro"])
     for flag in rf["flags"]:
-        st.markdown(f"🔴 {flag}")
+        st.markdown(f"- {flag}")
 
     st.markdown("---")
     st.warning(guide["disclaimer"])
@@ -750,7 +938,7 @@ def render_quiz_tab() -> None:
                 trigger_text="Q4: Taken antibiotics for cold/flu/sore throat = Yes",
             )
             st.markdown("---")
-            st.markdown("#### 📊 Your Risk Score (shown after viral intercept)")
+            st.markdown("#### Your Risk Score (shown after viral intercept)")
             st.info(
                 "Even though we redirected you to the home care guide (because antibiotics "
                 "don't help viral symptoms), your quiz result is still calculated below."
@@ -758,7 +946,7 @@ def render_quiz_tab() -> None:
 
         _render_quiz_result(result)
 
-        if st.button("🔄 Retake Quiz", key="retake_btn"):
+        if st.button("Retake Quiz", key="retake_btn"):
             st.session_state.quiz_submitted = False
             st.session_state.quiz_answers = {}
             st.session_state.quiz_risk_result = None
@@ -771,8 +959,8 @@ def _render_quiz_form() -> None:
     st.markdown(
         """
         <div class="card card-accent">
-            <h3 style="margin:0;color:#00D4AA;">🧪 Antibiotic Usage Habits Quiz</h3>
-            <p style="color:#8B90A7;margin:0.5rem 0 0 0;font-size:0.85rem;">
+            <h3 style="margin:0;color:#0093D5 !important;">Antibiotic Usage Habits Quiz</h3>
+            <p style="color:#6B7280;margin:0.5rem 0 0 0;font-size:0.85rem;">
             This is a <strong>deterministic, rule-based assessment</strong> — not AI-generated.
             Your score is calculated from fixed weights, not a model prediction.
             Answer honestly for the most useful result.
@@ -785,23 +973,23 @@ def _render_quiz_form() -> None:
     with st.form(key="quiz_form"):
         answers = {}
         for q in QUIZ_QUESTIONS:
-            st.markdown(f"**{q['question']}**")
-            ans = st.radio(
-                label=q["question"],
-                options=["No", "Yes"],
-                index=None,
-                key=f"quiz_{q['id']}",
-                label_visibility="collapsed",
-                horizontal=True,
-            )
-            answers[q["id"]] = ans
-            st.markdown("")  # spacer
+            with st.container(key=f"quizbox_{q['id']}"):
+                st.markdown(f"**{q['question']}**")
+                ans = st.radio(
+                    label=q["question"],
+                    options=["No", "Yes"],
+                    index=None,
+                    key=f"quiz_{q['id']}",
+                    label_visibility="collapsed",
+                    horizontal=True,
+                )
+                answers[q["id"]] = ans
 
-        submitted = st.form_submit_button("📊 Calculate My Risk Score", use_container_width=True)
+        submitted = st.form_submit_button("Calculate My Risk Score", use_container_width=True)
 
     if submitted:
         if None in answers.values():
-            st.error("⚠️ Please answer all the questions before submitting.")
+            st.error("Please answer all the questions before submitting.")
             return
         
         processed_answers = {
@@ -880,8 +1068,8 @@ def _render_quiz_result(result: dict) -> None:
     col_score, col_band, col_empty = st.columns([1, 2, 3])
     with col_score:
         st.markdown(
-            f'<div class="score-display" style="color:{"#00D4AA" if result["band"]=="Low" else "#FFD700" if result["band"]=="Medium" else "#FF4B4B"};">'
-            f'{result["score"]}<br><span style="font-size:0.9rem;font-weight:400;color:#8B90A7;">/ 14 pts</span>'
+            f'<div class="score-display" style="color:{"#0093D5" if result["band"]=="Low" else "#92600E" if result["band"]=="Medium" else "#B91C1C"};">'
+            f'{result["score"]}<br><span style="font-size:0.9rem;font-weight:400;color:#6B7280;">/ 14 pts</span>'
             f"</div>",
             unsafe_allow_html=True,
         )
@@ -889,8 +1077,8 @@ def _render_quiz_result(result: dict) -> None:
         band_range = band_info["range"]
         st.markdown(
             f'<div style="padding-top:1rem;">'
-            f'<div class="{badge_class}">{band_info["emoji"]} {result["band"]} Risk</div>'
-            f"<p style='margin-top:0.5rem;font-size:0.85rem;color:#8B90A7;'>{band_range} points</p>"
+            f'<div class="{badge_class}">{result["band"]} Risk</div>'
+            f"<p style='margin-top:0.5rem;font-size:0.85rem;color:#6B7280;'>{band_range} points</p>"
             f"</div>",
             unsafe_allow_html=True,
         )
@@ -900,7 +1088,7 @@ def _render_quiz_result(result: dict) -> None:
     st.info(band_info["tip"])
 
     st.markdown("---")
-    st.markdown("#### 📋 Your Answer Breakdown")
+    st.markdown("#### Your Answer Breakdown")
     st.caption(
         "Below is a transparent breakdown of how each answer contributed to your score. "
         "This score is calculated by a rule-based engine — not AI."
@@ -909,12 +1097,12 @@ def _render_quiz_result(result: dict) -> None:
     for item in result["breakdown"]:
         if item["answered"] == "Yes" and item["points"] > 0:
             with st.expander(
-                f"🔴 **+{item['points']} pts** — {item['question'].replace('**','')}"
+                f"**+{item['points']} pts** — {item['question'].replace('**','')}"
             ):
                 st.markdown(f"**Why this matters:** {item['explanation']}")
                 st.caption(f"Source: {item['source']}")
         else:
-            with st.expander(f"✅ **+0 pts** — {item['question'].replace('**','')}"):
+            with st.expander(f"**+0 pts** — {item['question'].replace('**','')}"):
                 st.markdown(
                     f"*No risk contribution from this answer. Good practice on this one.*"
                 )
@@ -927,7 +1115,7 @@ def _render_quiz_result(result: dict) -> None:
 def render_chat_tab() -> None:
     """Renders the split-screen AI chat (left) + source citation panel (right)."""
     all_snippets = db.get_reference_snippets()
-    chat_col, source_col = st.columns([2, 1])
+    chat_col, source_col = st.columns(2, gap="large")
 
     with chat_col:
         _render_chat_interface(all_snippets)
@@ -942,8 +1130,8 @@ def _render_chat_interface(all_snippets: list[dict]) -> None:
     st.markdown(
         """
         <div class="card card-accent">
-            <h3 style="margin:0;color:#00D4AA;">💬 Ask the AI — AMR Education Assistant</h3>
-            <p style="color:#8B90A7;margin:0.5rem 0 0 0;font-size:0.82rem;">
+            <h3 style="margin:0;color:#0093D5 !important;">Ask the AI — AMR Education Assistant</h3>
+            <p style="color:#6B7280;margin:0.5rem 0 0 0;font-size:0.82rem;">
             Powered by Groq Cloud Engine · Grounded in WHO/CDC/ICMR sources only
             </p>
         </div>
@@ -955,19 +1143,27 @@ def _render_chat_interface(all_snippets: list[dict]) -> None:
     for turn in st.session_state.chat_history:
         if turn["role"] == "user":
             st.markdown(
-                f'<div class="chat-user">👤 <strong>You:</strong> {turn["content"]}</div>',
+                f'<div class="chat-user"><strong>You:</strong> {turn["content"]}</div>',
                 unsafe_allow_html=True,
             )
         else:
             st.markdown(
-                f'<div class="chat-bot">🤖 <strong>AI Assistant:</strong><br>{turn["content"]}</div>',
+                f'<div class="chat-bot"><strong>AI Assistant:</strong><br>{turn["content"]}</div>',
                 unsafe_allow_html=True,
             )
             if turn.get("guardrail_blocked"):
                 st.markdown(
-                    '<div class="chat-blocked">🔒 Original response blocked by output guardrail — safe fallback shown.</div>',
+                    '<div class="chat-blocked">Original response blocked by output guardrail — safe fallback shown.</div>',
                     unsafe_allow_html=True,
                 )
+    
+    # Show the viral home-care guide if needed
+    if st.session_state.get("show_viral_guide", False):
+        st.markdown("---")
+        render_viral_redirect(
+            source="chat",
+            trigger_text="Detected from chat"
+        )
 
     # Input area
     st.markdown("")
@@ -981,9 +1177,10 @@ def _render_chat_interface(all_snippets: list[dict]) -> None:
         )
         col_send, col_clear = st.columns([3, 1])
         with col_send:
-            send_btn = st.form_submit_button("Send ➤", use_container_width=True)
+            with st.container(key="send_button_container"):
+                send_btn = st.form_submit_button("Send", use_container_width=True)
         with col_clear:
-            clear_btn = st.form_submit_button("Clear 🗑", use_container_width=True)
+            clear_btn = st.form_submit_button("Clear", use_container_width=True)
 
     if clear_btn:
         st.session_state.chat_history = []
@@ -999,11 +1196,12 @@ def _process_chat_turn(user_input: str, all_snippets: list[dict]) -> None:
     Routes a user message through the 5-layer safety stack.
     """
     session_id = st.session_state.user_session_id
+    st.session_state.show_viral_guide = False
 
     # ── Layer 1a: Emergency keyword check ──────────────────────────────────
     if _EMERGENCY_RE.search(user_input):
         emergency_response = (
-            "🚨 **This sounds like a potential emergency.** "
+            "**This sounds like a potential emergency.** "
             "Please contact your local emergency services immediately "
             "(e.g., **112 / 911 / 108**). Do not rely on this tool in a medical emergency.\n\n"
             "This is educational information only. Please consult a healthcare professional for personal medical advice."
@@ -1021,7 +1219,7 @@ def _process_chat_turn(user_input: str, all_snippets: list[dict]) -> None:
         viral_keyword = viral_match.group(0)
         st.session_state.chat_history.append({"role": "user", "content": user_input})
         viral_redirect_msg = (
-            "🦠 I detected viral symptom keywords in your question (**"
+            "I detected viral symptom keywords in your question (**"
             + viral_keyword
             + "**). "
             "Antibiotics are ineffective against viral infections. "
@@ -1033,7 +1231,9 @@ def _process_chat_turn(user_input: str, all_snippets: list[dict]) -> None:
         st.session_state.chat_history.append(
             {"role": "assistant", "content": viral_redirect_msg, "guardrail_blocked": False}
         )
-        render_viral_redirect(source="chat", trigger_text=f"{viral_keyword} (detected in: {user_input[:200]})")
+        
+        st.session_state.show_viral_guide = True
+        
         db.log_chat_turn(session_id, user_input, viral_redirect_msg, False, [])
         return
 
@@ -1074,7 +1274,10 @@ def _process_chat_turn(user_input: str, all_snippets: list[dict]) -> None:
         raw_output = response.choices[0].message.content or ""
         
     except Exception as exc:
-        print(f"[app] Dynamic API Error: {exc}. Activating live presentation fallback layers.")
+        import traceback
+        traceback.print_exc()
+        st.error(f"Dynamic API Error: {exc}")
+        query_lower = user_input.lower()
         
         # ── LIVE PRESENTATION RESILIENT KEYWORD FALLBACKS ──
         query_lower = user_input.lower()
@@ -1134,8 +1337,8 @@ def _render_source_sidebar(all_snippets: list[dict]) -> None:
     st.markdown(
         """
         <div class="card">
-            <h4 style="margin:0;color:#00D4AA;">📚 Verified Sources</h4>
-            <p style="color:#8B90A7;margin:0.3rem 0 0 0;font-size:0.78rem;">
+            <h4 style="margin:0;color:#0093D5 !important;">Verified Sources</h4>
+            <p style="color:#6B7280;margin:0.3rem 0 0 0;font-size:0.78rem;">
             Matched snippets from WHO, CDC & ICMR appear here after each response.
             </p>
         </div>
@@ -1157,7 +1360,7 @@ def _render_source_sidebar(all_snippets: list[dict]) -> None:
     if not matched:
         st.markdown(
             '<div class="snippet-card" style="color:#FF8080;font-size:0.8rem;">'
-            "⚠️ No verified snippet matched this query. The assistant was instructed to "
+            "No verified snippet matched this query. The assistant was instructed to "
             "acknowledge it has no verified source."
             "</div>",
             unsafe_allow_html=True,
@@ -1173,7 +1376,7 @@ def _render_source_sidebar(all_snippets: list[dict]) -> None:
         text = snippet.get("snippet_text", "")[:280]
         url = snippet.get("source_url", "")
 
-        url_html = f'<a href="{url}" target="_blank" style="color:#00D4AA;font-size:0.75rem;">🔗 Source Link</a>' if url else ""
+        url_html = f'<a href="{url}" target="_blank" style="color:#0093D5 !important;font-size:0.75rem;">Source Link</a>' if url else ""
 
         st.markdown(
             f"""
@@ -1245,8 +1448,8 @@ def render_myth_fact_tab(all_snippets: list[dict]) -> None:
     st.markdown(
         """
         <div class="card card-accent">
-            <h3 style="margin:0;color:#00D4AA;">🔍 Myth vs Fact — Antibiotic Resistance</h3>
-            <p style="color:#8B90A7;margin:0.5rem 0 0 0;font-size:0.85rem;">
+            <h3 style="margin:0;color:#0093D5 !important;">Myth vs Fact — Antibiotic Resistance</h3>
+            <p style="color:#6B7280;margin:0.5rem 0 0 0;font-size:0.85rem;">
             Static, zero-AI-risk educational content. Sourced directly from WHO, CDC, or ICMR public health guidance.
             </p>
         </div>
@@ -1254,16 +1457,16 @@ def render_myth_fact_tab(all_snippets: list[dict]) -> None:
         unsafe_allow_html=True,
     )
 
-    db_myth_facts = db.get_myth_fact_snippets(all_snippets)
+    db_myth_facts = db.get_myths_and_facts()
     cards = [
-        {
-            "myth": s.get("title", "Myth"),
-            "fact": s.get("snippet_text", ""),
-            "source_org": s.get("source_org", "WHO"),
-            "source_url": s.get("source_url", ""),
-        }
-        for s in db_myth_facts
-    ] if db_myth_facts else _FALLBACK_MYTH_FACTS
+    {
+        "myth": s.get("myth", "Myth"),
+        "fact": s.get("fact", ""),
+        "source_org": s.get("source_org", "WHO"),
+        "source_url": s.get("source_url", ""),
+    }
+    for s in db_myth_facts
+] if db_myth_facts else _FALLBACK_MYTH_FACTS
 
     org_badge_map = {"WHO": "badge-who", "CDC": "badge-cdc", "ICMR": "badge-icmr"}
 
@@ -1276,12 +1479,12 @@ def render_myth_fact_tab(all_snippets: list[dict]) -> None:
             with col:
                 org = card.get("source_org", "WHO")
                 badge_cls = org_badge_map.get(org, "badge-who")
-                with st.expander(f"🤔 MYTH:"):
-                    st.markdown(f'<span class="fact-label">✅ FACT</span>', unsafe_allow_html=True)
+                with st.expander(f"MYTH:"):
+                    st.markdown(f'<span class="fact-label">FACT</span>', unsafe_allow_html=True)
                     st.markdown(card["fact"])
                     st.markdown(f'<span class="snippet-org-badge {badge_cls}">{org}</span>', unsafe_allow_html=True)
                     if card.get("source_url"):
-                        st.markdown(f"[🔗 Read more at {org}]({card['source_url']})")
+                        st.markdown(f"[Read more at {org}]({card['source_url']})")
 
 
 # ---------------------------------------------------------------------------
@@ -1292,7 +1495,7 @@ def render_header() -> None:
     st.markdown(
         f"""
         <div class="app-header">
-            <h1>🛡️ {config.APP_NAME}</h1>
+            <h1>{config.APP_NAME}</h1>
             <p>{config.APP_TAGLINE} &nbsp;·&nbsp; v{config.APP_VERSION}</p>
         </div>
         """,
@@ -1305,9 +1508,9 @@ def render_footer() -> None:
         """
         <div class="app-footer">
             Built for the KBG Club Hackathon · IIT Mandi &nbsp;|&nbsp;
-            Data sources: <a href="https://www.who.int/news-room/fact-sheets/detail/antimicrobial-resistance" target="_blank" style="color:#00D4AA;">WHO</a> ·
-            <a href="https://www.cdc.gov/antibiotic-use/index.html" target="_blank" style="color:#00D4AA;">CDC</a> ·
-            <a href="https://main.icmr.gov.in/content/antimicrobial-resistance" target="_blank" style="color:#00D4AA;">ICMR</a>
+            Data sources: <a href="https://www.who.int/news-room/fact-sheets/detail/antimicrobial-resistance" target="_blank" style="color:#0093D5 !important;">WHO</a> ·
+            <a href="https://www.cdc.gov/antibiotic-use/index.html" target="_blank" style="color:#0093D5 !important;">CDC</a> ·
+            <a href="https://main.icmr.gov.in/content/antimicrobial-resistance" target="_blank" style="color:#0093D5 !important;">ICMR</a>
         </div>
         """,
         unsafe_allow_html=True,
@@ -1327,12 +1530,19 @@ def main() -> None:
         return
 
     all_snippets = db.get_reference_snippets()
-    tab1, tab2, tab3 = st.tabs(["🧪 Risk Checker Quiz", "💬 Ask the AI", "🔍 Myth vs Fact"])
+    tab1, tab2, tab3 = st.tabs(["Risk Checker Quiz", "Ask the AI", "Myth vs Fact"])
 
     with tab1:
         render_quiz_tab()
     with tab2:
         render_chat_tab()
+
+    if st.session_state.get("show_viral_guide", False):
+        st.markdown("---")
+        render_viral_redirect(
+            source="chat",
+            trigger_text="Detected from chat"
+        )
     with tab3:
         render_myth_fact_tab(all_snippets)
 
