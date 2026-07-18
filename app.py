@@ -1245,16 +1245,16 @@ def render_myth_fact_tab(all_snippets: list[dict]) -> None:
         unsafe_allow_html=True,
     )
 
-    db_myth_facts = db.get_myth_fact_snippets(all_snippets)
+    db_myth_facts = db.get_myths_and_facts()
     cards = [
-        {
-            "myth": s.get("title", "Myth"),
-            "fact": s.get("snippet_text", ""),
-            "source_org": s.get("source_org", "WHO"),
-            "source_url": s.get("source_url", ""),
-        }
-        for s in db_myth_facts
-    ] if db_myth_facts else _FALLBACK_MYTH_FACTS
+    {
+        "myth": s.get("myth", s.get("title", "Myth")),
+        "fact": s.get("fact", s.get("snippet_text", "")),
+        "source_org": s.get("source_org", "WHO"),
+        "source_url": s.get("source_url", ""),
+    }
+    for s in db_myth_facts
+]  if db_myth_facts else _FALLBACK_MYTH_FACTS
 
     org_badge_map = {"WHO": "badge-who", "CDC": "badge-cdc", "ICMR": "badge-icmr"}
 
@@ -1267,7 +1267,7 @@ def render_myth_fact_tab(all_snippets: list[dict]) -> None:
             with col:
                 org = card.get("source_org", "WHO")
                 badge_cls = org_badge_map.get(org, "badge-who")
-                with st.expander(f"🤔 MYTH:"):
+                with st.expander(f"🤔 MYTH: {card['myth']}"):
                     st.markdown(f'<span class="fact-label">✅ FACT</span>', unsafe_allow_html=True)
                     st.markdown(card["fact"])
                     st.markdown(f'<span class="snippet-org-badge {badge_cls}">{org}</span>', unsafe_allow_html=True)

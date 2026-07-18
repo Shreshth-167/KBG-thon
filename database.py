@@ -244,5 +244,53 @@ def search_snippets_by_tags(query_text: str, snippets: list[dict], top_k: int = 
         
     return [s for _, s in scored[:top_k]]
 
-def get_myth_fact_snippets(snippets: list[dict]) -> list[dict]:
-    return [s for s in snippets if s.get("is_myth_fact") is True]
+def get_myths_and_facts():
+    """Fetches educational myths/facts from Supabase, with a high-fidelity local fallback."""
+    try:
+        supabase = _get_client()
+        if supabase:
+            response = supabase.table("myths_facts").select("*").execute()
+            if response.data and len(response.data) > 0:
+                return response.data
+    except Exception as e:
+        print(f"Database read error context managed: {e}")
+    
+    # Using your high-fidelity lowercase array directly as the backup
+    return [
+        {
+            "myth": "Antibiotics cure colds and flu.",
+            "fact": "Colds and flu are caused by viruses. Antibiotics only work on bacteria — they have zero effect on viral infections and can cause harm.",
+            "source_org": "WHO",
+            "source_url": "https://www.who.int/news-room/fact-sheets/detail/antimicrobial-resistance",
+        },
+        {
+            "myth": "Stopping antibiotics early is fine once you feel better.",
+            "fact": "Feeling better doesn't mean all bacteria are dead. Stopping early lets the strongest bacteria survive and develop resistance. Always complete the full course.",
+            "source_org": "ICMR",
+            "source_url": "https://main.icmr.gov.in/content/antimicrobial-resistance",
+        },
+        {
+            "myth": "Sharing antibiotics with a sick family member is helpful.",
+            "fact": "A prescription is for a specific person, infection, and dose. Sharing means wrong drug, wrong dose, and an incomplete course — ideal conditions for creating resistant bacteria.",
+            "source_org": "WHO",
+            "source_url": "https://www.who.int/news-room/fact-sheets/detail/antimicrobial-resistance",
+        },
+        {
+            "myth": "Stronger antibiotics are always better for serious infections.",
+            "fact": "Broad-spectrum and 'stronger' antibiotics accelerate resistance and kill beneficial gut bacteria. Targeted, appropriate-spectrum antibiotics chosen by a doctor are always preferable.",
+            "source_org": "CDC",
+            "source_url": "https://www.cdc.gov/antibiotic-use/index.html",
+        },
+        {
+            "myth": "Keeping antibiotics at home is safe and convenient.",
+            "fact": "Stockpiling creates easy access for self-medication. Stored antibiotics are often past expiry, incorrectly stored, and used without a diagnosis — all major resistance risks.",
+            "source_org": "ICMR",
+            "source_url": "https://main.icmr.gov.in/content/antimicrobial-resistance",
+        },
+        {
+            "myth": "Antibiotic resistance only affects people who misuse antibiotics.",
+            "fact": "Resistance spreads through communities, hospitals, food, and water. Even if you use antibiotics correctly, resistant bacteria created elsewhere can infect you.",
+            "source_org": "WHO",
+            "source_url": "https://www.who.int/news-room/fact-sheets/detail/antimicrobial-resistance",
+        }
+    ]
