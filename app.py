@@ -789,19 +789,28 @@ def _render_quiz_form() -> None:
             ans = st.radio(
                 label=q["question"],
                 options=["No", "Yes"],
-                index=0,
+                index=None,
                 key=f"quiz_{q['id']}",
                 label_visibility="collapsed",
                 horizontal=True,
             )
-            answers[q["id"]] = "yes" if ans == "Yes" else "no"
+            answers[q["id"]] = ans
             st.markdown("")  # spacer
 
         submitted = st.form_submit_button("📊 Calculate My Risk Score", use_container_width=True)
 
     if submitted:
-        result = _compute_risk_score(answers)
-        st.session_state.quiz_answers = answers
+        if None in answers.values():
+            st.error("⚠️ Please answer all the questions before submitting.")
+            return
+        
+        processed_answers = {
+            k: "yes" if v == "Yes" else "no"
+            for k, v in answers.items()
+        }
+
+        result = _compute_risk_score(processed_answers)
+        st.session_state.quiz_answers = processed_answers
         st.session_state.quiz_risk_result = result
         st.session_state.viral_flag = result["viral_flag"]
         st.session_state.quiz_submitted = True
@@ -809,7 +818,7 @@ def _render_quiz_form() -> None:
         # Log to Supabase
         db.log_quiz_result(
             session_id=st.session_state.user_session_id,
-            answers=answers,
+            answers=processed_answers,
             risk_score=result["score"],
             risk_band=result["band"],
             viral_flag=result["viral_flag"],
@@ -1245,16 +1254,16 @@ def render_myth_fact_tab(all_snippets: list[dict]) -> None:
         unsafe_allow_html=True,
     )
 
-    db_myth_facts = db.get_myths_and_facts()
+    db_myth_facts = db.get_myth_fact_snippets(all_snippets)
     cards = [
-    {
-        "myth": s.get("myth", s.get("title", "Myth")),
-        "fact": s.get("fact", s.get("snippet_text", "")),
-        "source_org": s.get("source_org", "WHO"),
-        "source_url": s.get("source_url", ""),
-    }
-    for s in db_myth_facts
-]  if db_myth_facts else _FALLBACK_MYTH_FACTS
+        {
+            "myth": s.get("title", "Myth"),
+            "fact": s.get("snippet_text", ""),
+            "source_org": s.get("source_org", "WHO"),
+            "source_url": s.get("source_url", ""),
+        }
+        for s in db_myth_facts
+    ] if db_myth_facts else _FALLBACK_MYTH_FACTS
 
     org_badge_map = {"WHO": "badge-who", "CDC": "badge-cdc", "ICMR": "badge-icmr"}
 
@@ -1267,7 +1276,7 @@ def render_myth_fact_tab(all_snippets: list[dict]) -> None:
             with col:
                 org = card.get("source_org", "WHO")
                 badge_cls = org_badge_map.get(org, "badge-who")
-                with st.expander(f"🤔 MYTH: {card['myth']}"):
+                with st.expander(f"🤔 MYTH:"):
                     st.markdown(f'<span class="fact-label">✅ FACT</span>', unsafe_allow_html=True)
                     st.markdown(card["fact"])
                     st.markdown(f'<span class="snippet-org-badge {badge_cls}">{org}</span>', unsafe_allow_html=True)
