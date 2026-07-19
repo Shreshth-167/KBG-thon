@@ -25,6 +25,7 @@ from openai import OpenAI
 import config
 import database as db
 
+
 # ---------------------------------------------------------------------------
 # PAGE CONFIG  (must be the first Streamlit call)
 # ---------------------------------------------------------------------------
@@ -1458,6 +1459,7 @@ def render_myth_fact_tab(all_snippets: list[dict]) -> None:
     )
 
     db_myth_facts = db.get_myths_and_facts()
+    #st.write(db_myth_facts)
     cards = [
     {
         "myth": s.get("myth", "Myth"),
@@ -1479,7 +1481,7 @@ def render_myth_fact_tab(all_snippets: list[dict]) -> None:
             with col:
                 org = card.get("source_org", "WHO")
                 badge_cls = org_badge_map.get(org, "badge-who")
-                with st.expander(f"MYTH:"):
+                with st.expander(f"{card['myth']}"):
                     st.markdown(f'<span class="fact-label">FACT</span>', unsafe_allow_html=True)
                     st.markdown(card["fact"])
                     st.markdown(f'<span class="snippet-org-badge {badge_cls}">{org}</span>', unsafe_allow_html=True)
