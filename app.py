@@ -25,7 +25,6 @@ from openai import OpenAI
 import config
 import database as db
 
-
 # ---------------------------------------------------------------------------
 # PAGE CONFIG  (must be the first Streamlit call)
 # ---------------------------------------------------------------------------
@@ -52,451 +51,566 @@ st.set_page_config(
 
 st.markdown(
     """
-    <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
-    /* ── Force readable dark text everywhere by default ──
-         Streamlit's own theme sometimes sets light/white text on headings and
-         markdown content which then blends into this app's light background.
-         This rule guarantees legibility; anything intentionally colored
-         (accent headings, badges, links) uses !important inline/class rules
-         with higher priority than this fallback. */
-    [data-testid="stMarkdownContainer"] h1,
-    [data-testid="stMarkdownContainer"] h2,
-    [data-testid="stMarkdownContainer"] h3,
-    [data-testid="stMarkdownContainer"] h4,
-    [data-testid="stMarkdownContainer"] h5,
-    [data-testid="stMarkdownContainer"] h6,
-    [data-testid="stMarkdownContainer"] p,
-    [data-testid="stMarkdownContainer"] li,
-    [data-testid="stMarkdownContainer"] span,
-    [data-testid="stMarkdownContainer"] strong,
-    [data-testid="stMarkdownContainer"] em {
-        color: #1F2937 !important;
-    }
-    [data-testid="stExpander"] summary,
-    [data-testid="stExpander"] summary span,
-    [data-testid="stExpander"] summary p {
-        color: #1F2937 !important;
-    }
-    [data-testid="stCaptionContainer"] {
-        color: #4B5563 !important;
-    }
+/* ── Force readable dark text everywhere by default ──
+Streamlit's own theme sometimes sets light/white text on headings and
+markdown content which then blends into this app's light background.
+This rule guarantees legibility; anything intentionally colored
+(accent headings, badges, links) uses !important inline/class rules
+with higher priority than this fallback. */
+[data-testid="stMarkdownContainer"] h1,
+[data-testid="stMarkdownContainer"] h2,
+[data-testid="stMarkdownContainer"] h3,
+[data-testid="stMarkdownContainer"] h4,
+[data-testid="stMarkdownContainer"] h5,
+[data-testid="stMarkdownContainer"] h6,
+[data-testid="stMarkdownContainer"] p,
+[data-testid="stMarkdownContainer"] li,
+[data-testid="stMarkdownContainer"] span,
+[data-testid="stMarkdownContainer"] strong,
+[data-testid="stMarkdownContainer"] em {
+color: #1F2937 !important;
+}
+[data-testid="stExpander"] summary,
+[data-testid="stExpander"] summary span,
+[data-testid="stExpander"] summary p {
+color: #1F2937 !important;
+}
+[data-testid="stCaptionContainer"] {
+color: #4B5563 !important;
+}
 
-    /* ── Global reset — light WHO-style gradient background ── */
-    html,
-    body,
-    .stApp,
-    [data-testid="stAppViewContainer"],
-    [data-testid="stHeader"] {
-        font-family: 'Inter', sans-serif !important;
-        background: linear-gradient(160deg, #EAF4FB 0%, #F5FAFD 45%, #E4F1F8 100%) !important;
-        color: #1F2937 !important;
-    }
-    .main,
-    .block-container {
-        background: transparent !important;
-    }
+/* ── Global reset — light WHO-style gradient background ── */
+html,
+body,
+.stApp,
+[data-testid="stAppViewContainer"],
+[data-testid="stHeader"] {
+font-family: 'Inter', sans-serif !important;
+background: linear-gradient(160deg, #EAF4FB 0%, #F5FAFD 45%, #E4F1F8 100%) !important;
+color: #1F2937 !important;
+}
+.main,
+.block-container {
+background: transparent !important;
+}
 
-    /* ── Hide default Streamlit chrome ── */
-    #MainMenu, footer, header { visibility: hidden; }
+/* ── Hide default Streamlit chrome ── */
+#MainMenu, footer, header { visibility: hidden; }
 
-    /* ── App Header (WHO-inspired blue) ── */
-    .app-header{
-        width:100%;
-        min-height:140px;
-        background: linear-gradient(135deg, #002F6C 0%, #0093D5 100%);
-        border-radius:18px;
-        padding:2rem;
-        box-shadow:
-            0 10px 25px rgba(0,63,114,.28),
-            0 2px 6px rgba(0,0,0,.08),
-            inset 0 1px 0 rgba(255,255,255,.15);
-        position:relative;
-        overflow:hidden;
-    }
-    .app-header::before{
-        content:"";
-        position:absolute;
-        width:420px;
-        height:420px;
-        background:radial-gradient(rgba(255,255,255,.10), transparent 70%);
-        top:-200px;
-        right:-100px;
-    }
-    .app-header h1 {
-        font-size: 1.7rem;
-        font-weight: 800;
-        color: #FFFFFF;
-        margin: 0;
-        letter-spacing: -0.3px;
-    }
-    .app-header p {
-        color: rgba(255,255,255,0.85);
-        margin: 0.3rem 0 0 0;
-        font-size: 0.85rem;
-    }
+/* ── App Header (WHO-inspired blue) ── */
+.app-header{
+width:100%;
+min-height:140px;
+background: linear-gradient(135deg, #0093D5 0%, #002F6C 100%);
+border-radius:18px;
+padding:2rem;
+box-shadow:
+0 10px 25px rgba(0,63,114,.28),
+0 2px 6px rgba(0,0,0,.08),
+inset 0 1px 0 rgba(255,255,255,.15);
+position:relative;
+overflow:hidden;
+}
+.app-header::before{
+content:"";
+position:absolute;
+width:420px;
+height:420px;
+background:radial-gradient(rgba(255,255,255,.10), transparent 70%);
+top:-200px;
+right:-100px;
+}
+.app-header h1 {
+font-size: 1.7rem;
+font-weight: 800;
+color: #FFFFFF !important;
+margin: 0;
+letter-spacing: -0.3px;
+}
+.app-header p {
+color: rgba(255,255,255,0.88) !important;
+margin: 0.3rem 0 0 0;
+font-size: 0.85rem;
+}
 
-    /* ── Quiz question boxes ── */
-    div[class*="st-key-quizbox_"] {
-        background: linear-gradient(160deg, #FFFFFF 0%, #F3F8FC 100%);
-        border: 1px solid rgba(0,63,114,0.08);
-        border-left: 4px solid #0093D5;
-        border-radius: 12px;
-        padding: 1rem 1.2rem 0.6rem 1.2rem;
-        margin-bottom: 1rem;
-        box-shadow:
-            0 8px 18px rgba(15,52,96,.09),
-            0 2px 5px rgba(15,52,96,.05),
-            inset 0 1px 0 rgba(255,255,255,.7);
-        transition: transform .15s ease, box-shadow .15s ease;
-    }
-    div[class*="st-key-quizbox_"]:hover {
-        transform: translateY(-1px);
-        box-shadow:
-            0 12px 24px rgba(15,52,96,.13),
-            0 3px 7px rgba(15,52,96,.07),
-            inset 0 1px 0 rgba(255,255,255,.7);
-    }
+/* ── Quiz question boxes ── */
+div[class*="st-key-quizbox_"] {
+background: linear-gradient(160deg, #FFFFFF 0%, #F3F8FC 100%);
+border: 1px solid rgba(0,63,114,0.08);
+border-left: 4px solid #0093D5;
+border-radius: 12px;
+padding: 1rem 1.2rem 0.6rem 1.2rem;
+margin-bottom: 1rem;
+box-shadow:
+0 8px 18px rgba(15,52,96,.09),
+0 2px 5px rgba(15,52,96,.05),
+inset 0 1px 0 rgba(255,255,255,.7);
+transition: transform .15s ease, box-shadow .15s ease;
+}
+div[class*="st-key-quizbox_"]:hover {
+transform: translateY(-1px);
+box-shadow:
+0 12px 24px rgba(15,52,96,.13),
+0 3px 7px rgba(15,52,96,.07),
+inset 0 1px 0 rgba(255,255,255,.7);
+}
 
-    /* ── Card surfaces — soft 3D / raised look ── */
-    .card {
-        background: linear-gradient(160deg, #FFFFFF 0%, #F3F8FC 100%);
-        border: 1px solid rgba(0,63,114,0.08);
-        border-radius: 14px;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-        color: #1F2937;
-        box-shadow:
-            0 10px 22px rgba(15,52,96,.10),
-            0 2px 6px rgba(15,52,96,.06),
-            inset 0 1px 0 rgba(255,255,255,.7);
-        transition: transform .18s ease, box-shadow .18s ease;
-    }
-    .card:hover {
-        transform: translateY(-2px);
-        box-shadow:
-            0 14px 28px rgba(15,52,96,.14),
-            0 3px 8px rgba(15,52,96,.08),
-            inset 0 1px 0 rgba(255,255,255,.7);
-    }
-    .card-accent {
-        border-left: 4px solid #0093D5;
-    }
-    .card, .card h1, .card h2, .card h4, .card p, .card span, .card strong {
-        color: #1F2937 !important;
-    }
+/* ── Myth vs Fact boxes ── */
+div[class*="st-key-mythbox_"] {
+background: linear-gradient(160deg, #FFFFFF 0%, #FDF4F4 100%);
+border: 1px solid rgba(185,28,28,0.10);
+border-left: 4px solid #B91C1C;
+border-radius: 12px;
+padding: 1rem 1.2rem;
+margin-bottom: 1rem;
+box-shadow:
+0 8px 18px rgba(153,27,27,.08),
+0 2px 5px rgba(153,27,27,.05),
+inset 0 1px 0 rgba(255,255,255,.7);
+transition: transform .15s ease, box-shadow .15s ease;
+}
+div[class*="st-key-mythbox_"]:hover {
+transform: translateY(-1px);
+box-shadow:
+0 12px 24px rgba(153,27,27,.12),
+0 3px 7px rgba(153,27,27,.07),
+inset 0 1px 0 rgba(255,255,255,.7);
+}
 
-    /* ── Safety gateway ── */
-    .gateway-container {
-        max-width: 720px;
-        margin: 3rem auto;
-        background: linear-gradient(160deg, #FFFFFF 0%, #F3F8FC 100%);
-        border: 1px solid rgba(0,63,114,0.10);
-        border-top: 5px solid #002F6C;
-        border-radius: 16px;
-        padding: 2.5rem;
-        box-shadow:
-            0 18px 40px rgba(15,52,96,.16),
-            0 4px 10px rgba(15,52,96,.08);
-    }
-    .gateway-title {
-        font-size: 1.7rem;
-        font-weight: 800;
-        color: #002F6C;
-        margin-bottom: 0.5rem;
-    }
-    .gateway-subtitle {
-        color: #4B5563;
-        font-size: 0.9rem;
-        margin-bottom: 1.5rem;
-    }
-    .emergency-box{
-        background: linear-gradient(160deg, #FFF7ED 0%, #FFEDD9 100%);
-        border-left:8px solid #C2410C;
-        border-radius:16px;
-        padding:22px;
-        margin:1.2rem 0;
-        box-shadow: 0 10px 22px rgba(154,52,18,.14), inset 0 1px 0 rgba(255,255,255,.5);
-        color:#7C2D12;
-    }
-    .is-box{
-        background: linear-gradient(160deg, #F0FFFB 0%, #E1FBF3 100%);
-        border-left:6px solid #00A884;
-        border-radius:16px;
-        padding:22px;
-        box-shadow: 0 10px 22px rgba(0,120,90,.10), inset 0 1px 0 rgba(255,255,255,.6);
-        color:#1F2937;
-        transition:.2s;
-    }
-    .is-box:hover{
-        transform:translateY(-3px);
-        box-shadow:0 14px 28px rgba(0,120,90,.18);
-    }
-    .isnot-box{
-        background: linear-gradient(160deg, #FFF5F5 0%, #FDE8E8 100%);
-        border-left:6px solid #DC2626;
-        border-radius:16px;
-        padding:22px;
-        box-shadow: 0 10px 22px rgba(153,27,27,.10), inset 0 1px 0 rgba(255,255,255,.6);
-        color:#1F2937;
-        transition:.2s;
-    }
-    .isnot-box:hover{
-        transform:translateY(-3px);
-        box-shadow:0 14px 28px rgba(153,27,27,.18);
-    }
+/* ── Card surfaces — soft 3D / raised look ── */
+.card {
+background: linear-gradient(160deg, #FFFFFF 0%, #F3F8FC 100%);
+border: 1px solid rgba(0,63,114,0.08);
+border-radius: 14px;
+padding: 1.5rem;
+margin-bottom: 1rem;
+color: #1F2937;
+box-shadow:
+0 10px 22px rgba(15,52,96,.10),
+0 2px 6px rgba(15,52,96,.06),
+inset 0 1px 0 rgba(255,255,255,.7);
+transition: transform .18s ease, box-shadow .18s ease;
+}
+.card:hover {
+transform: translateY(-2px);
+box-shadow:
+0 14px 28px rgba(15,52,96,.14),
+0 3px 8px rgba(15,52,96,.08),
+inset 0 1px 0 rgba(255,255,255,.7);
+}
+.card-accent {
+border-left: 4px solid #0093D5;
+}
+.card, .card h1, .card h2, .card h4, .card p, .card span, .card strong {
+color: #1F2937 !important;
+}
 
-    /* ── Risk band badges ── */
-    .badge-low {
-        display: inline-block;
-        background: #DFF7EF;
-        color: #0F7A5D;
-        border: 1px solid #0F7A5D;
-        border-radius: 20px;
-        padding: 0.3rem 1rem;
-        font-weight: 700;
-        font-size: 1rem;
-        box-shadow: 0 3px 8px rgba(15,122,93,.15);
-    }
-    .badge-medium {
-        display: inline-block;
-        background: #FEF3D6;
-        color: #92600E;
-        border: 1px solid #92600E;
-        border-radius: 20px;
-        padding: 0.3rem 1rem;
-        font-weight: 700;
-        font-size: 1rem;
-        box-shadow: 0 3px 8px rgba(146,96,14,.15);
-    }
-    .badge-high {
-        display: inline-block;
-        background: #FBE1E1;
-        color: #B91C1C;
-        border: 1px solid #B91C1C;
-        border-radius: 20px;
-        padding: 0.3rem 1rem;
-        font-weight: 700;
-        font-size: 1rem;
-        box-shadow: 0 3px 8px rgba(185,28,28,.15);
-    }
+/* ── Safety gateway ── */
+.gateway-container {
+max-width: 720px;
+margin: 3rem auto;
+background: linear-gradient(160deg, #FFFFFF 0%, #F3F8FC 100%);
+border: 1px solid rgba(0,63,114,0.10);
+border-top: 5px solid #002F6C;
+border-radius: 16px;
+padding: 2.5rem;
+box-shadow:
+0 18px 40px rgba(15,52,96,.16),
+0 4px 10px rgba(15,52,96,.08);
+}
+.gateway-title {
+font-size: 1.7rem;
+font-weight: 800;
+color: #002F6C;
+margin-bottom: 0.5rem;
+}
+.gateway-subtitle {
+color: #4B5563;
+font-size: 0.9rem;
+margin-bottom: 1.5rem;
+}
+.emergency-box{
+background: linear-gradient(160deg, #FFF7ED 0%, #FFEDD9 100%);
+border-left:8px solid #C2410C;
+border-radius:16px;
+padding:22px;
+margin:1.2rem 0;
+box-shadow: 0 10px 22px rgba(154,52,18,.14), inset 0 1px 0 rgba(255,255,255,.5);
+color:#7C2D12;
+}
+.is-box{
+background: linear-gradient(160deg, #F0FFFB 0%, #E1FBF3 100%);
+border-left:6px solid #00A884;
+border-radius:16px;
+padding:22px;
+box-shadow: 0 10px 22px rgba(0,120,90,.10), inset 0 1px 0 rgba(255,255,255,.6);
+color:#1F2937;
+transition:.2s;
+}
+.is-box:hover{
+transform:translateY(-3px);
+box-shadow:0 14px 28px rgba(0,120,90,.18);
+}
+.isnot-box{
+background: linear-gradient(160deg, #FFF5F5 0%, #FDE8E8 100%);
+border-left:6px solid #DC2626;
+border-radius:16px;
+padding:22px;
+box-shadow: 0 10px 22px rgba(153,27,27,.10), inset 0 1px 0 rgba(255,255,255,.6);
+color:#1F2937;
+transition:.2s;
+}
+.isnot-box:hover{
+transform:translateY(-3px);
+box-shadow:0 14px 28px rgba(153,27,27,.18);
+}
 
-    /* ── Score ring (text-only version for Streamlit) ── */
-    .score-display {
-        font-size: 3rem;
-        font-weight: 800;
-        text-align: center;
-        padding: 1rem;
-        color: #0093D5;
-    }
+/* ── Risk band badges ── */
+.badge-low {
+display: inline-block;
+background: #DFF7EF;
+color: #0F7A5D;
+border: 1px solid #0F7A5D;
+border-radius: 20px;
+padding: 0.3rem 1rem;
+font-weight: 700;
+font-size: 1rem;
+box-shadow: 0 3px 8px rgba(15,122,93,.15);
+}
+.badge-medium {
+display: inline-block;
+background: #FEF3D6;
+color: #92600E;
+border: 1px solid #92600E;
+border-radius: 20px;
+padding: 0.3rem 1rem;
+font-weight: 700;
+font-size: 1rem;
+box-shadow: 0 3px 8px rgba(146,96,14,.15);
+}
+.badge-high {
+display: inline-block;
+background: #FBE1E1;
+color: #B91C1C;
+border: 1px solid #B91C1C;
+border-radius: 20px;
+padding: 0.3rem 1rem;
+font-weight: 700;
+font-size: 1rem;
+box-shadow: 0 3px 8px rgba(185,28,28,.15);
+}
 
-    /* ── Chat input textarea (the "Ask a question" box) ──
-         Streamlit's theme can leave this using the same color for the
-         textarea background and its text — force both explicitly. */
-    .stTextArea textarea {
-        background-color: #FFFFFF !important;
-        color: #1F2937 !important;
-        border: 1px solid rgba(0,63,114,0.20) !important;
-        border-radius: 10px !important;
-        box-shadow: inset 0 2px 4px rgba(0,63,114,.06);
-    }
-    .stTextArea textarea::placeholder {
-        color: #9CA3AF !important;
-    }
-    .stTextArea label,
-    .stTextArea label p {
-        color: #1F2937 !important;
-    }
+/* ── Score ring (text-only version for Streamlit) ── */
+.score-display {
+font-size: 3rem;
+font-weight: 800;
+text-align: center;
+padding: 1rem;
+color: #0093D5;
+}
 
-    /* ── Chat messages ── */
-    .chat-user,
-    .chat-user strong,
-    .chat-user span {
-        color: #002F6C !important;
-    }
-    .chat-user {
-        background: linear-gradient(160deg, #E7F4FC 0%, #D9EDF9 100%);
-        border: 1px solid rgba(0,147,213,0.30);
-        border-radius: 12px 12px 4px 12px;
-        padding: 0.8rem 1rem;
-        margin: 0.5rem 0;
-        font-size: 0.9rem;
-        box-shadow: 0 4px 10px rgba(0,63,114,.08);
-    }
-    .chat-bot,
-    .chat-bot strong,
-    .chat-bot span {
-        color: #1F2937 !important;
-    }
-    .chat-bot {
-        background: linear-gradient(160deg, #FFFFFF 0%, #F3F8FC 100%);
-        border: 1px solid rgba(0,63,114,0.10);
-        border-radius: 12px 12px 12px 4px;
-        padding: 0.8rem 1rem;
-        margin: 0.5rem 0;
-        font-size: 0.9rem;
-        box-shadow: 0 4px 10px rgba(0,63,114,.08);
-    }
-    .chat-blocked {
-        background: #FDECEC;
-        border: 1px solid rgba(185,28,28,0.35);
-        border-radius: 8px;
-        padding: 0.6rem 1rem;
-        font-size: 0.8rem;
-        color: #B91C1C;
-        margin-top: 0.3rem;
-    }
+/* ── Chat input textarea (the "Ask a question" box) ──
+Streamlit's theme can leave this using the same color for the
+textarea background and its text — force both explicitly. */
+.stTextArea textarea {
+background-color: #FFFFFF !important;
+color: #1F2937 !important;
+border: 1px solid rgba(0,63,114,0.20) !important;
+border-radius: 10px !important;
+box-shadow: inset 0 2px 4px rgba(0,63,114,.06);
+}
+.stTextArea textarea::placeholder {
+color: #9CA3AF !important;
+}
+.stTextArea label,
+.stTextArea label p {
+color: #1F2937 !important;
+}
 
-    /* ── Source sidebar snippets ── */
-    .snippet-card {
-        background: linear-gradient(160deg, #FFFFFF 0%, #F1F8FC 100%);
-        border: 1px solid rgba(0,63,114,0.10);
-        border-left: 3px solid #0093D5;
-        border-radius: 8px;
-        padding: 0.8rem;
-        margin-bottom: 0.6rem;
-        font-size: 0.8rem;
-        color: #374151;
-        box-shadow: 0 4px 10px rgba(0,63,114,.06);
-    }
-    .snippet-org-badge {
-        display: inline-block;
-        font-size: 0.7rem;
-        font-weight: 700;
-        padding: 0.15rem 0.5rem;
-        border-radius: 10px;
-        margin-bottom: 0.3rem;
-    }
-    .badge-who { background: #DCEBFB; color: #1D4ED8; border: 1px solid #1D4ED8; }
-    .badge-cdc { background: #DCF6E6; color: #15803D; border: 1px solid #15803D; }
-    .badge-icmr { background: #FDE7D6; color: #C2410C; border: 1px solid #C2410C; }
+/* ── Chat messages ── */
+.chat-user,
+.chat-user strong,
+.chat-user span {
+color: #002F6C !important;
+}
+.chat-user {
+background: linear-gradient(160deg, #E7F4FC 0%, #D9EDF9 100%);
+border: 1px solid rgba(0,147,213,0.30);
+border-radius: 12px 12px 4px 12px;
+padding: 0.8rem 1rem;
+margin: 0.5rem 0;
+font-size: 0.9rem;
+box-shadow: 0 4px 10px rgba(0,63,114,.08);
+}
+.chat-bot,
+.chat-bot strong,
+.chat-bot span {
+color: #1F2937 !important;
+}
+.chat-bot {
+background: linear-gradient(160deg, #FFFFFF 0%, #F3F8FC 100%);
+border: 1px solid rgba(0,63,114,0.10);
+border-radius: 12px 12px 12px 4px;
+padding: 0.8rem 1rem;
+margin: 0.5rem 0;
+font-size: 0.9rem;
+box-shadow: 0 4px 10px rgba(0,63,114,.08);
+}
+.chat-blocked {
+background: #FDECEC;
+border: 1px solid rgba(185,28,28,0.35);
+border-radius: 8px;
+padding: 0.6rem 1rem;
+font-size: 0.8rem;
+color: #B91C1C;
+margin-top: 0.3rem;
+}
 
-    /* ── Myth/Fact cards ── */
-    .myth-label {
-        color: #B91C1C;
-        font-weight: 700;
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-    .fact-label {
-        color: #0F7A5D;
-        font-weight: 700;
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
+/* ── Source sidebar snippets ── */
+.snippet-card {
+background: linear-gradient(160deg, #FFFFFF 0%, #F1F8FC 100%);
+border: 1px solid rgba(0,63,114,0.10);
+border-left: 3px solid #0093D5;
+border-radius: 8px;
+padding: 0.8rem;
+margin-bottom: 0.6rem;
+font-size: 0.8rem;
+color: #374151;
+box-shadow: 0 4px 10px rgba(0,63,114,.06);
+}
+.snippet-org-badge {
+display: inline-block;
+font-size: 0.7rem;
+font-weight: 700;
+padding: 0.15rem 0.5rem;
+border-radius: 10px;
+margin-bottom: 0.3rem;
+}
+.badge-who { background: #DCEBFB; color: #1D4ED8; border: 1px solid #1D4ED8; }
+.badge-cdc { background: #DCF6E6; color: #15803D; border: 1px solid #15803D; }
+.badge-icmr { background: #FDE7D6; color: #C2410C; border: 1px solid #C2410C; }
 
-    /* ── Viral redirect banner ── */
-    .viral-banner {
-        background: linear-gradient(135deg, #FEF3D6, #FDE9BE);
-        border: 2px solid #D97706;
-        border-radius: 12px;
-        padding: 1.5rem;
-        margin: 1rem 0;
-        box-shadow: 0 8px 18px rgba(146,96,14,.12);
-    }
-    .viral-banner-title {
-        color: #92600E;
-        font-size: 1.2rem;
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-    }
+/* ── Myth/Fact cards ── */
+.myth-label {
+color: #B91C1C !important;
+font-weight: 800 !important;
+font-size: 0.8rem;
+text-transform: uppercase;
+letter-spacing: 1px;
+}
+.fact-label {
+color: #0F7A5D !important;
+font-weight: 800 !important;
+font-size: 0.75rem;
+text-transform: uppercase;
+letter-spacing: 1px;
+}
 
-    /* ── Tabs styling ── */
-    .stTabs [data-baseweb="tab-list"] {
-        background-color: #FFFFFF;
-        border-radius: 10px;
-        padding: 4px;
-        gap: 4px;
-        box-shadow: 0 4px 12px rgba(0,63,114,.08);
-    }
-    .stTabs [data-baseweb="tab"] {
-        border-radius: 8px;
-        font-weight: 500;
-    }
-    .stTabs [data-baseweb="tab"],
-    .stTabs [data-baseweb="tab"] p,
-    .stTabs [data-baseweb="tab"] span,
-    .stTabs [data-baseweb="tab"] div {
-        color: #374151 !important;
-    }
-    .stTabs [aria-selected="true"],
-    .stTabs [aria-selected="true"] p,
-    .stTabs [aria-selected="true"] span,
-    .stTabs [aria-selected="true"] div {
-        color: #FFFFFF !important;
-    }
-    .stTabs [aria-selected="true"] {
-        background-color: #0093D5 !important;
-        font-weight: 700 !important;
-    }
-    .stTabs [data-baseweb="tab-highlight"] {
-        background-color: #0093D5 !important;
-    }
-    .stTabs [data-baseweb="tab-border"] {
-        background-color: rgba(0,63,114,0.12) !important;
-    }
+/* ── Viral redirect banner ── */
+.viral-banner {
+background: linear-gradient(135deg, #FEF3D6, #FDE9BE);
+border: 2px solid #D97706;
+border-radius: 12px;
+padding: 1.5rem;
+margin: 1rem 0;
+box-shadow: 0 8px 18px rgba(146,96,14,.12);
+}
+.viral-banner-title {
+color: #92600E;
+font-size: 1.2rem;
+font-weight: 700;
+margin-bottom: 0.5rem;
+}
 
-    /* ── Buttons (default: WHO blue, raised 3D) ── */
-    .stButton > button,
-    .stFormSubmitButton > button {
-        background: linear-gradient(135deg, #0093D5, #0072A8);
-        color: #FFFFFF;
-        font-weight: 700;
-        border: none;
-        border-radius: 8px;
-        padding: 0.6rem 1.5rem;
-        font-size: 0.95rem;
-        box-shadow: 0 6px 14px rgba(0,63,114,.22), inset 0 1px 0 rgba(255,255,255,.25);
-        transition: transform 0.15s ease, box-shadow 0.15s ease;
-    }
-    .stButton > button:hover,
-    .stFormSubmitButton > button:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 10px 20px rgba(0,63,114,.28);
-    }
+/* ── Tabs styling ── */
+.stTabs [data-baseweb="tab-list"] {
+background-color: #FFFFFF;
+border-radius: 12px;
+padding: 8px;
+gap: 8px;
+box-shadow: 0 4px 12px rgba(0,63,114,.08);
+}
+.stTabs [data-baseweb="tab"] {
+border-radius: 8px;
+font-weight: 700 !important;
+border: 2px solid #002F6C !important;
+padding: 0.5rem 1.1rem !important;
+background-color: #0093D5;
+transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease;
+box-shadow: 0 4px 10px rgba(0,63,114,.18);
+}
+.stTabs [data-baseweb="tab"]:hover {
+background-color: #0072A8;
+transform: translateY(-1px);
+box-shadow: 0 6px 14px rgba(0,63,114,.24);
+}
+.stTabs [data-baseweb="tab"],
+.stTabs [data-baseweb="tab"] p,
+.stTabs [data-baseweb="tab"] span,
+.stTabs [data-baseweb="tab"] div {
+color: #FFFFFF !important;
+font-weight: 700 !important;
+}
+.stTabs [aria-selected="true"],
+.stTabs [aria-selected="true"] p,
+.stTabs [aria-selected="true"] span,
+.stTabs [aria-selected="true"] div {
+color: #FFFFFF !important;
+}
+.stTabs [aria-selected="true"] {
+background-color: #002F6C !important;
+border: 2px solid #001A3D !important;
+font-weight: 700 !important;
+text-decoration: underline !important;
+text-underline-offset: 4px;
+box-shadow: 0 6px 14px rgba(0,26,61,.35) !important;
+}
+.stTabs [data-baseweb="tab-highlight"] {
+background-color: transparent !important;
+}
+.stTabs [data-baseweb="tab-border"] {
+background-color: transparent !important;
+}
 
-    /* ── Send button in the AI chat: green ── */
-    .st-key-send_button_container button {
-        background: linear-gradient(135deg, #22A559, #178A45) !important;
-        box-shadow: 0 6px 14px rgba(21,113,63,.28), inset 0 1px 0 rgba(255,255,255,.25) !important;
-    }
-    .st-key-send_button_container button:hover {
-        box-shadow: 0 10px 20px rgba(21,113,63,.32) !important;
-    }
+/* ── Buttons (default: WHO blue, raised 3D) ── */
+.stButton > button,
+.stFormSubmitButton > button {
+background: linear-gradient(135deg, #0093D5, #0072A8);
+color: #FFFFFF;
+font-weight: 700;
+border: none;
+border-radius: 8px;
+padding: 0.6rem 1.5rem;
+font-size: 0.95rem;
+box-shadow: 0 6px 14px rgba(0,63,114,.22), inset 0 1px 0 rgba(255,255,255,.25);
+transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.stButton > button:hover,
+.stFormSubmitButton > button:hover {
+transform: translateY(-1px);
+box-shadow: 0 10px 20px rgba(0,63,114,.28);
+}
 
-    /* ── Checkbox ── */
-    .stCheckbox label {
-        color: #1F2937 !important;
-        font-size: 0.95rem !important;
-        font-weight: 500 !important;
-    }
+/* ── Send button in the AI chat: green ── */
+.st-key-send_button_container button {
+background: linear-gradient(135deg, #22A559, #178A45) !important;
+box-shadow: 0 6px 14px rgba(21,113,63,.28), inset 0 1px 0 rgba(255,255,255,.25) !important;
+}
+.st-key-send_button_container button:hover {
+box-shadow: 0 10px 20px rgba(21,113,63,.32) !important;
+}
 
-    /* ── Expander (myth/fact) ── */
-    .streamlit-expanderHeader {
-        background: #FFFFFF !important;
-        border-radius: 8px !important;
-        font-weight: 600 !important;
-        color: #1F2937 !important;
-        box-shadow: 0 4px 10px rgba(0,63,114,.06);
-    }
+/* ── Checkbox ── */
+.stCheckbox label {
+color: #1F2937 !important;
+font-size: 0.95rem !important;
+font-weight: 500 !important;
+}
+.stCheckbox input[type="checkbox"] {
+accent-color: #0093D5 !important;
+width: 20px !important;
+height: 20px !important;
+}
+div[class*="st-key-disclaimer_checkbox_box"] {
+background: linear-gradient(160deg, #FFFFFF 0%, #F3F8FC 100%);
+border: 2px solid #0093D5;
+border-radius: 12px;
+padding: 1rem 1.3rem;
+margin: 1rem 0;
+box-shadow:
+0 8px 18px rgba(0,63,114,.10),
+inset 0 1px 0 rgba(255,255,255,.7);
+}
 
-    /* ── Divider ── */
-    hr { border-color: rgba(0,63,114,0.15) !important; }
+/* ── Radio buttons (quiz Yes/No) ── */
+.stRadio > div {
+gap: 0.6rem !important;
+}
+.stRadio label {
+background: #FFFFFF;
+border: 2px solid rgba(0,63,114,0.18);
+border-radius: 10px;
+padding: 0.5rem 1.2rem !important;
+margin: 0 !important;
+font-weight: 600 !important;
+color: #1F2937 !important;
+box-shadow: 0 3px 8px rgba(0,63,114,.06);
+transition: all .15s ease;
+cursor: pointer;
+}
+.stRadio label:hover {
+border-color: #0093D5;
+transform: translateY(-1px);
+box-shadow: 0 6px 14px rgba(0,63,114,.12);
+}
+.stRadio label[data-checked="true"],
+.stRadio label:has(input:checked) {
+background: linear-gradient(135deg, #0093D5, #0072A8) !important;
+border-color: #002F6C !important;
+box-shadow: 0 6px 14px rgba(0,63,114,.22) !important;
+}
+.stRadio label[data-checked="true"] p,
+.stRadio label:has(input:checked) p {
+color: #FFFFFF !important;
+font-weight: 700 !important;
+}
+.stRadio input[type="radio"] {
+accent-color: #0093D5 !important;
+width: 18px !important;
+height: 18px !important;
+}
 
-    /* ── Footer ── */
-    .app-footer {
-        text-align: center;
-        color: #6B7280;
-        font-size: 0.75rem;
-        padding: 2rem 0 1rem 0;
-        border-top: 1px solid rgba(0,63,114,0.12);
-        margin-top: 3rem;
-    }
-    </style>
-    """,
+/* ── Expander (myth/fact) ── */
+.streamlit-expanderHeader {
+background: #FFFFFF !important;
+border-radius: 8px !important;
+font-weight: 600 !important;
+color: #1F2937 !important;
+box-shadow: 0 4px 10px rgba(0,63,114,.06);
+}
+[data-testid="stExpander"] {
+background: transparent !important;
+}
+[data-testid="stExpander"] summary,
+[data-testid="stExpander"] details summary,
+[data-testid="stExpander"] details[open] summary,
+[data-testid="stExpander"] summary:hover,
+[data-testid="stExpander"] summary:focus {
+background-color: #FFFFFF !important;
+border: 1px solid rgba(0,63,114,0.20) !important;
+border-radius: 8px !important;
+}
+[data-testid="stExpander"] summary p,
+[data-testid="stExpander"] summary span,
+[data-testid="stExpander"] details[open] summary p,
+[data-testid="stExpander"] details[open] summary span,
+[data-testid="stExpander"] summary svg {
+color: #0093D5 !important;
+fill: #0093D5 !important;
+font-weight: 700 !important;
+}
+[data-testid="stExpanderDetails"] {
+background-color: #FFFFFF !important;
+border-radius: 0 0 8px 8px;
+}
+
+/* ── Divider ── */
+hr { border-color: rgba(0,63,114,0.15) !important; }
+
+/* ── Footer ── */
+.app-footer {
+text-align: center;
+color: #6B7280;
+font-size: 0.75rem;
+padding: 2rem 0 1rem 0;
+border-top: 1px solid rgba(0,63,114,0.12);
+margin-top: 3rem;
+}
+</style>
+""",
     unsafe_allow_html=True,
 )
 
@@ -769,10 +883,10 @@ def render_safety_gateway() -> None:
     """
     st.markdown(
         """
-        <div class="gateway-container">
-            <div class="gateway-title">Important — Read Before Continuing</div>
-            <div class="gateway-subtitle">AMR Awareness & Risk Checker · Educational Tool Only</div>
-        """,
+<div class="gateway-container">
+<div class="gateway-title">Important — Read Before Continuing</div>
+<div class="gateway-subtitle">AMR Awareness & Risk Checker · Educational Tool Only</div>
+""",
         unsafe_allow_html=True,
     )
 
@@ -780,68 +894,69 @@ def render_safety_gateway() -> None:
     with col1:
         st.markdown(
             """
-            <div class="is-box">
-            <strong><h3 style="margin-bottom:15px;">
-             This Tool CAN Help You
-            </h3></strong><br>
-            • An awareness and education resource<br>
-            • A self-reflection quiz about antibiotic habits<br>
-            • A guide to AMR and responsible antibiotic use<br>
-            • Powered by publicly available WHO/CDC/ICMR guidance
-            </div>
-            """,
+<div class="is-box">
+<strong><h3 style="margin-bottom:15px;">
+This Tool CAN Help You
+</h3></strong><br>
+• An awareness and education resource<br>
+• A self-reflection quiz about antibiotic habits<br>
+• A guide to AMR and responsible antibiotic use<br>
+• Powered by publicly available WHO/CDC/ICMR guidance
+</div>
+""",
             unsafe_allow_html=True,
         )
     with col2:
         st.markdown(
             """
-            <div class="isnot-box">
-            <strong><h3 style="margin-bottom:15px;">
-             This Tool Cannot
-            </h3></strong><br>
-            • A medical diagnostic tool<br>
-            • A prescription or treatment service<br>
-            • A substitute for a doctor or pharmacist<br>
-            • Able to recommend specific drugs or doses
-            </div>
-            """,
+<div class="isnot-box">
+<strong><h3 style="margin-bottom:15px;">
+This Tool Cannot
+</h3></strong><br>
+• A medical diagnostic tool<br>
+• A prescription or treatment service<br>
+• A substitute for a doctor or pharmacist<br>
+• Able to recommend specific drugs or doses
+</div>
+""",
             unsafe_allow_html=True,
         )
 
     st.markdown(
     """
-    <div class="emergency-box">
-        <h3 style="margin-top:0;">Medical Emergency</h3>
+<div class="emergency-box">
+<h3 style="margin-top:0;">Medical Emergency</h3>
 
-        <p style="margin-bottom:12px;">
-        If you have any <strong>life-threatening symptoms</strong>,
-        do not rely on this tool.
-        </p>
+<p style="margin-bottom:12px;">
+If you have any <strong>life-threatening symptoms</strong>,
+do not rely on this tool.
+</p>
 
-        <ul style="margin-top:0;">
-            <li>Chest pain</li>
-            <li>Difficulty breathing</li>
-            <li>Severe bleeding</li>
-            <li>Loss of consciousness</li>
-            <li>Seizures</li>
-        </ul>
+<ul style="margin-top:0;">
+<li>Chest pain</li>
+<li>Difficulty breathing</li>
+<li>Severe bleeding</li>
+<li>Loss of consciousness</li>
+<li>Seizures</li>
+</ul>
 
-        <strong>
-        Call your local emergency services immediately
-        (112 / 108 / 911).
-        </strong>
-    </div>
-    """,
+<strong>
+Call your local emergency services immediately
+(112 / 108 / 911).
+</strong>
+</div>
+""",
     unsafe_allow_html=True,
     )
 
     st.markdown("---")
 
-    accepted = st.checkbox(
-        "I understand this tool does not provide medical diagnosis or treatment. "
-        "I will use it for educational purposes only.",
-        key="disclaimer_checkbox",
-    )
+    with st.container(key="disclaimer_checkbox_box"):
+        accepted = st.checkbox(
+            "I understand this tool does not provide medical diagnosis or treatment. "
+            "I will use it for educational purposes only.",
+            key="disclaimer_checkbox",
+        )
 
     st.markdown("</div>", unsafe_allow_html=True)
 
@@ -959,15 +1074,15 @@ def _render_quiz_form() -> None:
     """Renders the 6-question quiz form."""
     st.markdown(
         """
-        <div class="card card-accent">
-            <h3 style="margin:0;color:#0093D5 !important;">Antibiotic Usage Habits Quiz</h3>
-            <p style="color:#6B7280;margin:0.5rem 0 0 0;font-size:0.85rem;">
-            This is a <strong>deterministic, rule-based assessment</strong> — not AI-generated.
-            Your score is calculated from fixed weights, not a model prediction.
-            Answer honestly for the most useful result.
-            </p>
-        </div>
-        """,
+<div class="card card-accent">
+<h3 style="margin:0;color:#0093D5 !important;">Antibiotic Usage Habits Quiz</h3>
+<p style="color:#6B7280;margin:0.5rem 0 0 0;font-size:0.85rem;">
+This is a <strong>deterministic, rule-based assessment</strong> — not AI-generated.
+Your score is calculated from fixed weights, not a model prediction.
+Answer honestly for the most useful result.
+</p>
+</div>
+""",
         unsafe_allow_html=True,
     )
 
@@ -1130,13 +1245,13 @@ def _render_chat_interface(all_snippets: list[dict]) -> None:
 
     st.markdown(
         """
-        <div class="card card-accent">
-            <h3 style="margin:0;color:#0093D5 !important;">Ask the AI — AMR Education Assistant</h3>
-            <p style="color:#6B7280;margin:0.5rem 0 0 0;font-size:0.82rem;">
-            Powered by Groq Cloud Engine · Grounded in WHO/CDC/ICMR sources only
-            </p>
-        </div>
-        """,
+<div class="card card-accent">
+<h3 style="margin:0;color:#0093D5 !important;">Ask the AI — AMR Education Assistant</h3>
+<p style="color:#6B7280;margin:0.5rem 0 0 0;font-size:0.82rem;">
+Powered by Groq Cloud Engine · Grounded in WHO/CDC/ICMR sources only
+</p>
+</div>
+""",
         unsafe_allow_html=True,
     )
 
@@ -1337,13 +1452,13 @@ def _render_source_sidebar(all_snippets: list[dict]) -> None:
 
     st.markdown(
         """
-        <div class="card">
-            <h4 style="margin:0;color:#0093D5 !important;">Verified Sources</h4>
-            <p style="color:#6B7280;margin:0.3rem 0 0 0;font-size:0.78rem;">
-            Matched snippets from WHO, CDC & ICMR appear here after each response.
-            </p>
-        </div>
-        """,
+<div class="card">
+<h4 style="margin:0;color:#0093D5 !important;">Verified Sources</h4>
+<p style="color:#6B7280;margin:0.3rem 0 0 0;font-size:0.78rem;">
+Matched snippets from WHO, CDC & ICMR appear here after each response.
+</p>
+</div>
+""",
         unsafe_allow_html=True,
     )
 
@@ -1448,18 +1563,17 @@ def render_myth_fact_tab(all_snippets: list[dict]) -> None:
 
     st.markdown(
         """
-        <div class="card card-accent">
-            <h3 style="margin:0;color:#0093D5 !important;">Myth vs Fact — Antibiotic Resistance</h3>
-            <p style="color:#6B7280;margin:0.5rem 0 0 0;font-size:0.85rem;">
-            Static, zero-AI-risk educational content. Sourced directly from WHO, CDC, or ICMR public health guidance.
-            </p>
-        </div>
-        """,
+<div class="card card-accent">
+<h3 style="margin:0;color:#0093D5 !important;">Myth vs Fact — Antibiotic Resistance</h3>
+<p style="color:#6B7280;margin:0.5rem 0 0 0;font-size:0.85rem;">
+Static, zero-AI-risk educational content. Sourced directly from WHO, CDC, or ICMR public health guidance.
+</p>
+</div>
+""",
         unsafe_allow_html=True,
     )
 
     db_myth_facts = db.get_myths_and_facts()
-    #st.write(db_myth_facts)
     cards = [
     {
         "myth": s.get("myth", "Myth"),
@@ -1481,12 +1595,18 @@ def render_myth_fact_tab(all_snippets: list[dict]) -> None:
             with col:
                 org = card.get("source_org", "WHO")
                 badge_cls = org_badge_map.get(org, "badge-who")
-                with st.expander(f"{card['myth']}"):
-                    st.markdown(f'<span class="fact-label">FACT</span>', unsafe_allow_html=True)
-                    st.markdown(card["fact"])
-                    st.markdown(f'<span class="snippet-org-badge {badge_cls}">{org}</span>', unsafe_allow_html=True)
-                    if card.get("source_url"):
-                        st.markdown(f"[Read more at {org}]({card['source_url']})")
+                with st.container(key=f"mythbox_{hash(card['myth']) & 0xffff}"):
+                    st.markdown(
+                        f'<span class="myth-label">MYTH</span>'
+                        f'<p style="margin:0.3rem 0 0.8rem 0;font-weight:600;color:#1F2937;">{card["myth"]}</p>',
+                        unsafe_allow_html=True,
+                    )
+                    with st.expander("Reveal the fact"):
+                        st.markdown('<span class="fact-label">FACT</span>', unsafe_allow_html=True)
+                        st.markdown(card["fact"])
+                        st.markdown(f'<span class="snippet-org-badge {badge_cls}">{org}</span>', unsafe_allow_html=True)
+                        if card.get("source_url"):
+                            st.markdown(f"[Read more at {org}]({card['source_url']})")
 
 
 # ---------------------------------------------------------------------------
@@ -1508,13 +1628,13 @@ def render_header() -> None:
 def render_footer() -> None:
     st.markdown(
         """
-        <div class="app-footer">
-            Built for the KBG Club Hackathon · IIT Mandi &nbsp;|&nbsp;
-            Data sources: <a href="https://www.who.int/news-room/fact-sheets/detail/antimicrobial-resistance" target="_blank" style="color:#0093D5 !important;">WHO</a> ·
-            <a href="https://www.cdc.gov/antibiotic-use/index.html" target="_blank" style="color:#0093D5 !important;">CDC</a> ·
-            <a href="https://main.icmr.gov.in/content/antimicrobial-resistance" target="_blank" style="color:#0093D5 !important;">ICMR</a>
-        </div>
-        """,
+<div class="app-footer">
+Built for the KBG Club Hackathon · IIT Mandi &nbsp;|&nbsp;
+Data sources: <a href="https://www.who.int/news-room/fact-sheets/detail/antimicrobial-resistance" target="_blank" style="color:#0093D5 !important;">WHO</a> ·
+<a href="https://www.cdc.gov/antibiotic-use/index.html" target="_blank" style="color:#0093D5 !important;">CDC</a> ·
+<a href="https://main.icmr.gov.in/content/antimicrobial-resistance" target="_blank" style="color:#0093D5 !important;">ICMR</a>
+</div>
+""",
         unsafe_allow_html=True,
     )
 
