@@ -1255,6 +1255,21 @@ Powered by Groq Cloud Engine · Grounded in WHO/CDC/ICMR sources only
         unsafe_allow_html=True,
     )
 
+    # Greeting shown only before the user has asked anything — purely
+    # cosmetic, so it is not stored in session_state / sent to the model.
+    if not st.session_state.chat_history:
+        st.markdown(
+            '<div class="chat-bot"><strong>AI Assistant:</strong><br>'
+            "Hi! I'm your AMR education assistant. I can help explain "
+            "antibiotic resistance, when antibiotics do (and don't) work, "
+            "and safe antibiotic use — grounded in WHO, CDC, and ICMR "
+            "guidance. Try asking things like <em>\"Why shouldn't I stop "
+            "antibiotics early?\"</em> or <em>\"Are antibiotics safe for "
+            "viral infections?\"</em>"
+            "</div>",
+            unsafe_allow_html=True,
+        )
+
     # Render chat history
     for turn in st.session_state.chat_history:
         if turn["role"] == "user":
